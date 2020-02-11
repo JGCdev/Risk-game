@@ -3,14 +3,23 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ComienzoComponent } from './comienzo/comienzo.component';
+import { PartidasComponent } from './partidas/partidas.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { EscenarioComponent } from './escenario/escenario.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ComienzoComponent,
+    PartidasComponent,
+    EscenarioComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
