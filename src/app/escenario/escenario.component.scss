@@ -28,19 +28,163 @@
     border-top-right-radius: 26px;
 }
 
-// Eliminar fichas en un principio
-.ficha {
-    // display:none;
+
+// CSS FINAL
+// Color de los paises por defecto si no hay ninguna ficha
+.world{
+    path{
+        fill:#9C7805;
+    }
 }
-#g-indo:hover path{
-    fill:#a31aa6;
-}
-.g-aus{
+// Color del pais en función de la ficha
+.verde{
     cursor:pointer;
+    path{
+        fill:#48C74C;stroke:#000000;
+    }
+    path:hover{
+        fill:#89db8c;
+    }
+    ellipse{
+        fill: rgb(17, 133, 21);
+    }
+    ellipse:first-child{
+        fill: #B5B81D;
+    }
+}
+.verde:hover{
+    path{
+        fill:#89db8c;
+    }
+}
+.verde.selected{
+    ellipse{
+        stroke:#000000;
+    }
+    path{
+        fill:#89db8c;
+    }
+}
+
+.morado{
+    cursor:pointer;
+    path{
+        fill:#7B147D;stroke:#000000;
+    }
     path:hover{
         fill:#a31aa6;
     }
+    ellipse{
+        fill: #8a5dcb;
+       
+    }
+    ellipse:first-child{
+        fill: #312148;
+    }
 }
+.morado:hover{
+    path{
+        fill:#a31aa6;
+    }
+}
+
+.azul{
+    cursor:pointer;
+    path{
+        fill:#42a5f4;stroke:#000000;
+    }
+    path:hover{
+        fill:#70bcfa;
+    }
+    ellipse{
+        fill: #60aeee;
+       
+    }
+    ellipse:first-child{
+        fill: #1e4b6f;
+    }
+}
+.azul:hover{
+    path{
+        fill:#70bcfa;
+    }
+}
+
+.naranja{
+    cursor:pointer;
+    path{
+        fill:#f37e39;stroke:#000000;
+    }
+    path:hover{
+        fill:#f3a375;
+    }
+    ellipse{
+        fill: #ce5f1e;
+       
+    }
+    ellipse:first-child{
+        fill: #683618;
+    }
+}
+.naranja:hover{
+    path{
+        fill:#f3a375;
+    }
+}
+
+.rojo{
+    cursor:pointer;
+    path{
+        fill:#9c240f;stroke:#000000;
+    }
+    path:hover{
+        fill:#f3a375;
+    }
+    ellipse{
+        fill: #e94444;
+       
+    }
+    ellipse:first-child{
+        fill: #6a1f1f;
+    }
+}
+.rojo:hover{
+    path{
+        fill:#f3a375;
+    }
+}
+
+.amarillo{
+    cursor:pointer;
+    path{
+        fill:#B5B81D;stroke:#000000;
+    }
+    path:hover{
+        fill:#f3a375;
+    }
+    ellipse{
+        fill: #f4b826;
+       
+    }
+    ellipse:first-child{
+        fill: #58420e;
+    }
+}
+.amarillo:hover{
+    path{
+        fill:#f3a375;
+    }
+}
+
+// Texto
+.st8{fill:#FFFFFF;}
+.st10{font-size:16px;}
+
+
+
+
+// Desechar una vez acabada la lógica superior
+
 .g-asia{
     cursor:pointer;
     path:hover{
@@ -101,9 +245,6 @@
 .st3{fill-rule:evenodd;clip-rule:evenodd;fill:#7B147D;stroke:#000000;}
 .st4{fill-rule:evenodd;clip-rule:evenodd;fill:#2293AC;stroke:#000000;stroke-miterlimit:10.433;}
 .st5{fill:#7B147D;stroke:#000000;stroke-miterlimit:4.3217;}
-.st8{fill:#FFFFFF;}
-
-.st10{font-size:16px;}
 .st11{fill:none;stroke:#000000;stroke-width:1.2;stroke-miterlimit:4.3217;stroke-opacity:0.5853;}
 .st12{fill-rule:evenodd;clip-rule:evenodd;fill:#950D98;stroke:#000000;}
 .st13{fill-rule:evenodd;clip-rule:evenodd;fill:#8A168C;stroke:#000000;}
@@ -115,42 +256,3 @@
 .st19{fill-rule:evenodd;clip-rule:evenodd;fill:#B5B81D;stroke:#000000;}
 .st20{fill:none;}
 
-
-// TEST
-
-#verde{
-    ellipse{
-        fill: #48C74C;
-       
-    }
-    ellipse:first-child{
-        fill: #B5B81D;
-    }
-}
-#morado{
-    ellipse{
-        fill: #8a5dcb;
-       
-    }
-    ellipse:first-child{
-        fill: #312148;
-    }
-}
-#azul{
-    ellipse{
-        fill: #42a5f4;
-       
-    }
-    ellipse:first-child{
-        fill: #1e4b6f;
-    }
-}
-#naranja{
-    ellipse{
-        fill: #f37e39;
-       
-    }
-    ellipse:first-child{
-        fill: #683618;
-    }
-}

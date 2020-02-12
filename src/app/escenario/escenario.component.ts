@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { stringify } from '@angular/compiler/src/util';
 
 @Component({
   selector: 'app-escenario',
@@ -8,73 +7,109 @@ import { stringify } from '@angular/compiler/src/util';
 })
 export class EscenarioComponent implements OnInit {
 
-  fichaVerdeS: string;
-  fichaMoradaS: string;
-  fichaAzulS: string;
-  fichaNaranjaS: string;
-  fichaAmarillaS: string;
-  fichaRojaS: string;
-  fichaVerdeI: string;
-  fichaMoradaI: string;
-  fichaAzulI: string;
-  fichaNaranjaI: string;
-  fichaAmarillaI: string;
-  fichaRojaI: string;
-  ausW: object;
-  ausE: object;
-  ausIndo: object;
-  ausGuinea: object;
+  // Id para analizar si es posible atacarle o no, añadir array de posibles ataques.
+  continentes = [
+    {
+      australia: [
+        {
+          id: 1,
+          nombre: 'Aus West',
+          frontera: [2, 3, 4],
+          fichas: 10,
+          color: 'verde',
+          selected: false,
+        },
+        {
+          id: 2,
+          nombre: 'Aus E',
+          frontera: [4, 1],
+          fichas: 10,
+          color: 'morado',
+          selected: false,
+        },
+        {
+          id: 3,
+          nombre: 'Aus Indo',
+          frontera: [1, 4, 5],
+          fichas: 10,
+          color: 'azul',
+          selected: false,
+        },
+        {
+          id: 4,
+          nombre: 'Aus Guinea',
+          frontera: [1, 2, 3],
+          fichas: 10,
+          color: 'naranja',
+          selected: false,
+        },
+      ]
+    },
+    {
+      asia: [
+        {
+          id: 5,
+          nombre: 'India',
+          frontera: [],
+          fichas: 1,
+          color: 'naranja',
+          selected: false,
+        },
+        {
+          id: 6,
+          nombre: 'Siam',
+          frontera: [],
+          fichas: 1,
+          color: 'naranja',
+          selected: false,
+        },
+        {
+          id: 7,
+          nombre: 'China',
+          frontera: [],
+          fichas: 1,
+          color: 'naranja',
+          selected: false,
+        }
+      ]
+    },
+    {
+      europa: [
+
+      ]
+    },
+    {
+      americaN: [
+
+      ]
+    },
+    {
+      americaS: [
+
+      ]
+    }
+  ];
 
   constructor() {
-    this.fichaVerdeS = 'f-verde-s';
-    this.fichaMoradaS = 'f-violeta-s';
-    this.fichaAzulS = 'f-azul-s';
-    this.fichaNaranjaS = 'f-naranja-s';
-    this.fichaAmarillaS = 'f-amar-s';
-    this.fichaRojaS = 'f-rojo-s';
-    this.fichaVerdeI = 'f-verde-i';
-    this.fichaMoradaI = 'f-violeta-i';
-    this.fichaAzulI = 'f-azul-i';
-    this.fichaNaranjaI = 'f-naranja-i';
-    this.fichaAmarillaI = 'f-amar-i';
-    this.fichaRojaI = 'f-rojo-i';
-
-    // Esta es la parte que vale, añadir color de territorio por si está cogido, generar esto por cada continente, 
-    // hacer interface o modelo de continente, tratar parte de la logica desde backend, tener en cuenta
-    this.ausW = {
-      fichaSuperior: this.fichaAzulS,
-      fichaInferior: this.fichaAzulI,
-      fichas: 10,
-      color: 'verde',
-      double: true,
-    };
-    this.ausE = {
-      fichaSuperior: this.fichaAzulS,
-      fichaInferior: this.fichaAzulI,
-      fichas: 10,
-      color: 'morado',
-      double: true,
-    };
-    this.ausIndo = {
-      fichaSuperior: this.fichaAzulS,
-      fichaInferior: this.fichaAzulI,
-      fichas: 10,
-      color: 'azul',
-      double: true,
-    };
-    this.ausGuinea = {
-      fichaSuperior: this.fichaAzulS,
-      fichaInferior: this.fichaAzulI,
-      fichas: 10,
-      color: 'naranja',
-      double: true,
-    };
-
   }
 
   ngOnInit() {
   }
 
+
+  clickDch(elem) {
+    console.log('cojemos clickc en elemento: ', elem);
+    // cambiar switch por bucle que pare cuando encuentre el id para ponerlo selected
+
+    switch(elem) {
+      case 1:
+          this.continentes[0].australia[0].selected = !this.continentes[0].australia[0].selected;
+          break;
+      default:
+      
+      break;
+    }
+  }
 
   modificarFichasTerritorio() {
 
