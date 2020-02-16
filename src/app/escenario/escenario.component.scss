@@ -6,6 +6,25 @@
     width: 1200px;
     margin: 0 auto;
 }
+.content-pj{
+    font-family: 'Raleway', sans-serif;
+    color:white;
+    .turno-info-container{
+        display: flex;
+        padding: 20px;
+        .turno-info{
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            span{
+                padding:10px 0px;
+            }
+        }
+        .turno-info-actions{
+            margin-top:10px;
+        }
+    }
+}
 .container-pj{
     width: 20%;
     height: 200px;
@@ -87,6 +106,14 @@
         fill:#a31aa6;
     }
 }
+.morado.selected{
+    ellipse{
+        stroke:#000000;
+    }
+    path{
+        fill:#a31aa6;
+    }
+}
 
 .azul{
     cursor:pointer;
@@ -105,6 +132,14 @@
     }
 }
 .azul:hover{
+    path{
+        fill:#70bcfa;
+    }
+}
+.azul.selected{
+    ellipse{
+        stroke:#000000;
+    }
     path{
         fill:#70bcfa;
     }
@@ -131,6 +166,14 @@
         fill:#f3a375;
     }
 }
+.naranja.selected{
+    ellipse{
+        stroke:#000000;
+    }
+    path{
+        fill:#f3a375;
+    }
+}
 
 .rojo{
     cursor:pointer;
@@ -149,6 +192,14 @@
     }
 }
 .rojo:hover{
+    path{
+        fill:#f3a375;
+    }
+}
+.rojo.selected{
+    ellipse{
+        stroke:#000000;
+    }
     path{
         fill:#f3a375;
     }
@@ -175,84 +226,20 @@
         fill:#f3a375;
     }
 }
+.amarillo.selected{
+    ellipse{
+        stroke:#000000;
+    }
+    path{
+        fill:#f3a375;
+    }
+}
 
 // Texto
 .st8{fill:#FFFFFF;}
 .st10{font-size:16px;}
-
-
-
-
-// Desechar una vez acabada la lógica superior
-
-.g-asia{
-    cursor:pointer;
-    path:hover{
-        fill:#89db8c;
-    }
-}
-.g-amen{
-    cursor:pointer;
-    path:hover{
-        fill:#d9dd23;
-    }
-}
-.g-ames{
-    cursor:pointer;
-    path:hover{
-        fill:#9c240f;
-    }
-}
-.g-africa{
-    cursor:pointer;
-    path:hover{
-        fill:#785c05;
-    }
-}
-.g-euro{
-    cursor:pointer;
-    path:hover{
-        fill:#47c1dc;
-    }
-}
-
-/* Fichas default */
-.st6{fill:#EA9B9B;}
-.st7{fill:#C64A4A;}
-/* Fichas color rojo*/
-.f-rojo-s{fill:#e94444;}
-.f-rojo-i{fill:#6a1f1f;}
-/* Fichas color amarillo */
-.f-amar-s{fill:#f4b826;}
-.f-amar-i{fill:#58420e;}
-/* Fichas color verde */
-.f-verde-s{fill:#48C74C;}
-.f-verde-i{fill:#B5B81D;}
-/* Fichas color violeta */
-.f-violeta-s{fill:#8a5dcb;}
-.f-violeta-i{fill:#312148;}
-/* Fichas color azul */
-.f-azul-s{fill:#42a5f4;}
-.f-azul-i{fill:#1e4b6f;}
-/* Fichas color naranja */
-.f-naranja-s{fill:#f37e39;}
-.f-naranja-i{fill:#683618;}
-
-
+// Lineas mar
 .st0{fill:none;stroke:#000000;stroke-dasharray:4,1;}
 .st1{fill:none;stroke:#000000;stroke-width:1.2;stroke-dasharray:4.8,1.2;}
-.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#48C74C;stroke:#000000;}
-.st3{fill-rule:evenodd;clip-rule:evenodd;fill:#7B147D;stroke:#000000;}
-.st4{fill-rule:evenodd;clip-rule:evenodd;fill:#2293AC;stroke:#000000;stroke-miterlimit:10.433;}
-.st5{fill:#7B147D;stroke:#000000;stroke-miterlimit:4.3217;}
-.st11{fill:none;stroke:#000000;stroke-width:1.2;stroke-miterlimit:4.3217;stroke-opacity:0.5853;}
-.st12{fill-rule:evenodd;clip-rule:evenodd;fill:#950D98;stroke:#000000;}
-.st13{fill-rule:evenodd;clip-rule:evenodd;fill:#8A168C;stroke:#000000;}
-.st14{fill:#48C74C;stroke:#000000;}
-.st15{fill:#2293AC;stroke:#000000;stroke-miterlimit:10.433;}
-.st16{fill:#9C7805;stroke:#000000;}
-.st17{fill:#EA4224;stroke:#000000;}
-.st18{fill:#B5B81D;stroke:#000000;}
-.st19{fill-rule:evenodd;clip-rule:evenodd;fill:#B5B81D;stroke:#000000;}
-.st20{fill:none;}
+
 

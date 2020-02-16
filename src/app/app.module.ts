@@ -7,13 +7,15 @@ import { ComienzoComponent } from './comienzo/comienzo.component';
 import { PartidasComponent } from './partidas/partidas.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EscenarioComponent } from './escenario/escenario.component';
+import { ModalComponent } from './shared/modal/modal.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ComienzoComponent,
     PartidasComponent,
-    EscenarioComponent
+    EscenarioComponent,
+    ModalComponent
   ],
   imports: [
     BrowserModule,
