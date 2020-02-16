@@ -17,8 +17,14 @@
                     <span *ngIf="jugador.fase === 0"><b>Tropas:</b> {{jugador.fichasDisp}}</span>
                 </div>
                 <div class="turno-info-actions">
-                    <button>Siguiente</button>
+                    <button (click)="siguienteFase()">Siguiente</button>
                 </div>
+            </div>
+            <div class="conquistar" *ngIf="conquistarModal.active">
+                <span>¿Añadir más fichas?</span>
+                <span class="font-mini">Máximo: {{conquistarModal.max}} </span>
+                <input type="number" name="tropasAnadir" min="2" max="{{conquistarModal.max}}" value="0" [(ngModel)]="fichasAnadir">
+                <button class="action-btn" (click)="addTropas(fichasAnadir)">Añadir</button>
             </div>
             <app-modal (moverEvent)="mover($event)" [jugador]="jugador" *ngIf="modal"></app-modal>
         </div>

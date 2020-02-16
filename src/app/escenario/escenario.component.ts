@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver } from '@angular/core';
 import { Pais } from '../pais';
 
 @Component({
@@ -167,7 +167,7 @@ export class EscenarioComponent implements OnInit {
       id: 17,
       nombre: 'África Norte',
       frontera: [16, 18, 19, 22, 40, 41],
-      fichas: 8,
+      fichas: 4,
       color: 'azul',
       selected: false,
       continente: 3
@@ -213,7 +213,7 @@ export class EscenarioComponent implements OnInit {
       nombre: 'Brasil',
       frontera: [17, 23, 24, 25],
       fichas: 8,
-      color: 'azul',
+      color: 'morado',
       selected: false,
       continente: 4
     },
@@ -395,7 +395,7 @@ export class EscenarioComponent implements OnInit {
       id: 0,
       nombre: 'Jesus',
       turno: true,
-      fase: 0,
+      fase: 1,
       color: 0,
       colorString: 'morado',
       fichasDisp: 10,
@@ -423,9 +423,16 @@ export class EscenarioComponent implements OnInit {
 
   lastIdSelected: number = null;
   modal: boolean;
+  conquistarModal = {
+    active: false,
+    max: null,
+    conquistado: null,
+    conquistador: null
+  };
   posibleAtaque: Array<number> = [];
   coloresIndice = ['morado', 'verde', 'azul', 'rojo', 'naranja', 'amarillo'];
-  fasesIndice = ['Inicial', 'Ataque', 'Defensa']
+  fasesIndice = ['Inicial', 'Ataque', 'Defensa'];
+  fichasAnadir = 0;
   constructor() {
   }
 
@@ -438,9 +445,9 @@ export class EscenarioComponent implements OnInit {
     // Si es nuestro turno, evaluamos
     if (this.jugador.turno) {
       // Acciones según fase
-      this.seleccionarPais(id);
       switch (this.jugador.fase) {
         case 0:
+          this.seleccionarPais(id);
           console.log('fase inicial');
           if (this.paisEnPosesion(id)) {
             console.log('es nuestro país');
@@ -454,15 +461,30 @@ export class EscenarioComponent implements OnInit {
           }
           break;
         case 1:
+          this.seleccionarPais(id);
           console.log('fase de ataque');
           if (this.paisAtacable(id)) {
             console.log('atacamos');
             this.modal = true;
             this.posibleAtaque = [this.lastIdSelected, id];
+          } else {
+            console.log('no puedes atacar este país');
           }
           break;
         case 2:
           console.log('fase ordenación');
+          if (this.lastIdSelected === null) {
+            this.seleccionarPais(id);
+          } else if (this.jugador.colorString === this.paises[id].color) {
+            if (this.paisesConectados(this.paises[id], this.paises[this.lastIdSelected])) {
+              console.log('seleccionar tropas a pasar, abrir modal');
+            } else {
+              console.log('los paises son aliados pero no están conectados');
+            }
+
+          } else {
+            console.log('no se pueden transferir las tropas');
+          }
           break;
       }
 
@@ -470,7 +492,8 @@ export class EscenarioComponent implements OnInit {
   }
 
   paisAtacable(id) {
-    if (this.paises[this.lastIdSelected].frontera.indexOf(this.paises[id].id) === -1) {
+    console.log('pais seleccionado: ', this.paises[this.lastIdSelected].nombre);
+    if (this.paises[this.lastIdSelected].frontera.indexOf(this.paises[id].id) === -1 || this.paises[this.lastIdSelected].fichas < 2) {
       return false;
     } else {
       return true;
@@ -527,9 +550,9 @@ export class EscenarioComponent implements OnInit {
       case 1:
         console.log('ataque tipo: ', event.type);
         if (event.type === 1 ) {
-          this.ataqueSubito(this.posibleAtaque);
+          this.ataqueSubito();
         } else {
-          this.ataquePorTurnos(this.posibleAtaque);
+          this.ataquePorTurnos();
         }
         this.posibleAtaque = [];
         this.reset();
@@ -540,15 +563,155 @@ export class EscenarioComponent implements OnInit {
     }
   }
 
-  ataqueSubito(paises) {
-    const atacante = this.paises[this.posibleAtaque[0]].fichas;
-    const defensor = this.paises[this.posibleAtaque[1]].fichas;
-    console.log('logica para atque súbito');
-    console.log('ataco con ' + atacante + ' a ' + defensor);
+  ataqueSubito() {
+    // Bucle hasta que uno de los paises se quede a cero
+    while (this.paises[this.posibleAtaque[0]].fichas !== 0 && this.paises[this.posibleAtaque[1]].fichas !== 0) {
+      this.atacar();
+    }
+    if (this.paises[this.posibleAtaque[0]].fichas === 0) {
+      console.log(this.paises[this.posibleAtaque[0]].nombre + ' se ha quedado sin fichas');
+      // Gana el país 1 del array de posibles ataques, convertimos país 0 en propiedad del 1
+      this.paises[this.posibleAtaque[0]].fichas = 1;
+      console.log('perdemos por lo que dejamos a cero ' + this.paises[this.posibleAtaque[1]].nombre);
+    } else {
+      console.log(this.paises[this.posibleAtaque[1]].nombre + ' se ha quedado sin fichas');
+      this.conquistarPais(this.posibleAtaque[0], this.posibleAtaque[1]);
+      console.log('conquistamos ' + this.paises[this.posibleAtaque[0]].nombre + ' desde ' + this.paises[this.posibleAtaque[1]].nombre);
+
+      // this.conquistarPais(this.posibleAtaque[0], this.posibleAtaque[1]);
+    }
   }
 
-  ataquePorTurnos(paises) {
+  conquistarPais(conquistador, conquistado) {
+    this.paises[conquistado].color = this.paises[conquistador].color;
+    this.paises[conquistado].fichas += 2;
+    this.paises[conquistador].fichas -= 2;
+    this.conquistarModal.active = true;
+    this.conquistarModal.max = this.paises[conquistador].fichas - 1;
+    this.conquistarModal.conquistado = conquistado;
+    this.conquistarModal.conquistador = conquistador;
+    // Reseteamos input
+    this.fichasAnadir = 0;
+  }
+
+  ataquePorTurnos() {
     console.log('logica para ataque por turnos');
+  }
+
+  addTropas(num) {
+    // Si las fichas a añadir no sobrepasan las que tenemos para mover - 1
+    if (this.paises[this.conquistarModal.conquistador].fichas - 1 >= num) {
+      console.log('añadimos ' + num + 'tropas a' + this.conquistarModal.conquistado);
+      this.paises[this.conquistarModal.conquistado].fichas += num;
+      this.paises[this.conquistarModal.conquistador].fichas -= num;
+      this.conquistarModal.active = false;
+    } else {
+      this.fichasAnadir = 0;
+    }
+
+  }
+
+  atacar() {
+    const atacante = this.paises[this.posibleAtaque[0]].fichas;
+    const defensor = this.paises[this.posibleAtaque[1]].fichas;
+    console.log('ataco con ' + atacante + ' a ' + defensor);
+    let dadosAtacante = 0;
+    let dadosDefensor = 0;
+    let totalAtacante = 0;
+    let totalDefensor = 0;
+    // SI atacante es menor que defensor
+    if (atacante < defensor) {
+      console.log('Atacante es menor que el defensor');
+      dadosAtacante = 1;
+      dadosDefensor = 3;
+      totalAtacante = this.lanzarDados(dadosAtacante);
+      totalDefensor = this.lanzarDados(dadosDefensor);
+      if (totalAtacante === totalDefensor) {
+        this.eliminarFichas(this.posibleAtaque[0], this.posibleAtaque[1]);
+      } else if (totalAtacante < totalDefensor) {
+        this.eliminarFichas(this.posibleAtaque[0]);
+      } else {
+        this.eliminarFichas(this.posibleAtaque[1]);
+      }
+    }
+    // Si atacante es = que defensor                        --- atacante más probabilidad   60% - 40%
+    if (atacante === defensor) {
+      console.log('Atacante es igual que el defensor');
+      dadosAtacante = 2;
+      dadosDefensor = 1;
+      totalAtacante = this.lanzarDados(dadosAtacante);
+      totalDefensor = this.lanzarDados(dadosDefensor);
+      if (totalAtacante === totalDefensor) {
+        this.eliminarFichas(this.posibleAtaque[0], this.posibleAtaque[1]);
+      } else if (totalAtacante < totalDefensor) {
+        this.eliminarFichas(this.posibleAtaque[0]);
+      } else {
+        this.eliminarFichas(this.posibleAtaque[1]);
+      }
+    }
+    // Si atacante es > que el defensor y menor del doble   --- atacante más                70% - 30%
+    if (atacante > defensor) {
+      console.log('Atacante es mayor que el defensor');
+      dadosAtacante = 3;
+      dadosDefensor = 1;
+      totalAtacante = this.lanzarDados(dadosAtacante);
+      totalDefensor = this.lanzarDados(dadosDefensor);
+      if (totalAtacante === totalDefensor) {
+        this.eliminarFichas(this.posibleAtaque[0], this.posibleAtaque[1]);
+      } else if (totalAtacante < totalDefensor) {
+        this.eliminarFichas(this.posibleAtaque[0]);
+      } else {
+        this.eliminarFichas(this.posibleAtaque[1]);
+      }
+    }
+    // Si atacante es el doble o menor que el triple        --- más                         80% - 20%
+    // Si atacante es el tripe o más                        --- mucho más                   90% - 10%
+
+  }
+
+  eliminarFichas(pais, segundoPais?) {
+    if (!segundoPais) {
+      this.paises[pais].fichas -= 3;
+      if (this.paises[pais].fichas < 0) {
+        this.paises[pais].fichas = 0;
+      }
+    } else {
+      this.paises[pais].fichas -= 1;
+      this.paises[segundoPais].fichas -= 1;
+      if (this.paises[pais].fichas < 0) {
+        this.paises[pais].fichas = 0;
+      } else if (this.paises[segundoPais].fichas < 0) {
+        this.paises[segundoPais].fichas = 0;
+      }
+    }
+
+  }
+
+  lanzarDados(numero) {
+    let totalResult = 0;
+    for (let i = 0; i < numero; i++) {
+      const numeroAleatorio = Math.round(Math.random() * 6);
+      totalResult += numeroAleatorio;
+      console.log('Numero generado: ' + numeroAleatorio);
+    }
+    return totalResult;
+  }
+
+  paisesConectados(paisDestino, paisPartida) {
+    // Parte fuerte de la aplicación, algoritmo de comparación de dos países, comprobar si están conectados
+
+    // si está aislado del inicio
+    let aislado = false;
+
+    // Comprobamos si el destino está directamente aislado del pais de partida
+    paisDestino.frontera.forEach( (elem) => {
+      if (this.paises[elem].color === paisPartida.color) {
+        aislado = true;
+      }
+    });
+
+    return aislado;
+
   }
 
   reset() {
@@ -558,5 +721,8 @@ export class EscenarioComponent implements OnInit {
   }
 
 
+  siguienteFase() {
+    this.jugador.fase++;
+  }
 
 }

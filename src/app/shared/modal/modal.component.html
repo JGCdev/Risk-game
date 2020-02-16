@@ -7,8 +7,10 @@
         </div>
         <div class="box" *ngIf="jugador.fase === 1">
             <span>Modalidad de ataque</span>
-            <button (click)="muerteSubita()">Muerte súbita</button>
-            <button (click)="porTurnos()">Por turnos</button>
+            <div class="buttons-container">
+                <button  class="action-btn" (click)="muerteSubita()">Muerte súbita</button>
+                <button  class="action-btn" (click)="porTurnos()">Por turnos</button>
+            </div>
         </div>
         <div class="box" *ngIf="jugador.fase === 2">
             <h4>Recolocar:</h4>

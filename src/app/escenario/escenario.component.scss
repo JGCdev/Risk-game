@@ -11,7 +11,7 @@
     color:white;
     .turno-info-container{
         display: flex;
-        padding: 20px;
+        padding: 10px 20px;
         .turno-info{
             display: flex;
             flex: 1;
@@ -46,8 +46,15 @@
     align-items: center;
     border-top-right-radius: 26px;
 }
-
-
+.conquistar{
+    display: flex;
+    flex-direction: column;
+    padding: 0px 20px;
+    text-align:center;
+}
+.font-mini{
+    font-size:12px;
+}
 // CSS FINAL
 // Color de los paises por defecto si no hay ninguna ficha
 .world{
