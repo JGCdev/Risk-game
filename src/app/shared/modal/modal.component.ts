@@ -26,4 +26,9 @@ export class ModalComponent implements OnInit {
     console.log('add ', num);
     this.moverEvent.emit({ action: 0, fichas: num });
   }
+
+  moverFichas(num) {
+    console.log('move ', num);
+    this.moverEvent.emit({ action: 2, fichas: num });
+  }
 }
