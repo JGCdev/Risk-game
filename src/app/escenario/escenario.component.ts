@@ -412,31 +412,29 @@ export class EscenarioComponent implements OnInit {
   posibleAtaque: Array<number> = [];
   coloresIndice = ['morado', 'verde', 'azul', 'rojo', 'naranja', 'amarillo'];
   fasesIndice = ['Inicial', 'Ataque', 'Defensa'];
+
   fichasAnadir = 0;
   auxFronteras: Array<number> = [];
   auxFronterasArray: Array<number> = [];
 
-  // CONTINUAR - Comprobar por qué no detecta como aliado a más de dos campos en fase 2
   constructor() {
   }
 
   ngOnInit() {
   }
 
-
   clickDch(id) {
-    console.log('Has hecho click en: ' , this.paises[id]);
+    console.log('Has hecho click en: ' , this.paises[id].nombre);
     // Si es nuestro turno, evaluamos
     if (this.jugador.turno) {
       // Acciones según fase
       switch (this.jugador.fase) {
         case 0:
           this.seleccionarPais(id);
-          console.log('fase inicial');
           if (this.paisEnPosesion(id)) {
-            console.log('es nuestro país');
+            // console.log('es nuestro país');
             if (this.fichasDisponibles()) {
-              console.log('podemos añadir fichas, mostramos modal para seleccionar:');
+              // console.log('podemos añadir fichas, mostramos modal para seleccionar:');
               this.lastIdSelected = id;
               this.modal = true;
             }
@@ -445,8 +443,8 @@ export class EscenarioComponent implements OnInit {
           }
           break;
         case 1:
+          // console.log('fase de ataque');
           this.seleccionarPais(id);
-          console.log('fase de ataque');
           if (this.paisAtacable(id)) {
             console.log('atacamos');
             this.modal = true;
@@ -456,7 +454,7 @@ export class EscenarioComponent implements OnInit {
           }
           break;
         case 2:
-          console.log('fase ordenación');
+          // console.log('fase ordenación');
           if (this.lastIdSelected === null) {
             this.seleccionarPais(id);
           } else {
@@ -477,7 +475,6 @@ export class EscenarioComponent implements OnInit {
   }
 
   paisAtacable(id) {
-    console.log('pais seleccionado: ', this.paises[this.lastIdSelected].nombre);
     if (this.paises[this.lastIdSelected].frontera.indexOf(this.paises[id].id) === -1 || this.paises[this.lastIdSelected].fichas < 2) {
       return false;
     } else {
@@ -523,7 +520,7 @@ export class EscenarioComponent implements OnInit {
     console.log('Evento', event);
     switch (event.action) {
       case 0:
-        console.log('fase de carga');
+        // console.log('fase de carga');
         this.paises[this.lastIdSelected].fichas += event.fichas;
         this.jugador.fichasDisp -= event.fichas;
         this.reset();
@@ -533,7 +530,7 @@ export class EscenarioComponent implements OnInit {
         }
         break;
       case 1:
-        console.log('ataque tipo: ', event.type);
+        // console.log('ataque tipo: ', event.type);
         if (event.type === 1 ) {
           this.ataqueSubito();
         } else {
@@ -543,22 +540,22 @@ export class EscenarioComponent implements OnInit {
         this.reset();
         break;
       case 2:
-        console.log('fase ordenación');
+        // console.log('fase ordenación');
         break;
     }
   }
 
   ataqueSubito() {
-    // Bucle hasta que uno de los paises se quede a cero
+    // Bucle hasta que uno de los paises se quede a cero - Modificar y hacer algo mas favorecedor para el defensor
     while (this.paises[this.posibleAtaque[0]].fichas !== 0 && this.paises[this.posibleAtaque[1]].fichas !== 0) {
       this.atacar();
     }
     if (this.paises[this.posibleAtaque[0]].fichas === 0) {
-      console.log(this.paises[this.posibleAtaque[0]].nombre + ' se ha quedado sin fichas');
+      // console.log(this.paises[this.posibleAtaque[0]].nombre + ' se ha quedado sin fichas');
       this.paises[this.posibleAtaque[0]].fichas = 1;
       console.log('perdemos por lo que dejamos a cero ' + this.paises[this.posibleAtaque[1]].nombre);
     } else {
-      console.log(this.paises[this.posibleAtaque[1]].nombre + ' se ha quedado sin fichas');
+      // console.log(this.paises[this.posibleAtaque[1]].nombre + ' se ha quedado sin fichas');
       this.conquistarPais(this.posibleAtaque[0], this.posibleAtaque[1]);
       console.log('conquistamos ' + this.paises[this.posibleAtaque[0]].nombre + ' desde ' + this.paises[this.posibleAtaque[1]].nombre);
     }
@@ -677,34 +674,38 @@ export class EscenarioComponent implements OnInit {
 
   paisesConectados(paisDestino, paisPartida) {
 
-    // 1- Comprobamos si directamente los países son frontera - si son frontera devolvemos true (conectados)
-    console.log('Son frontera? : ', this.comprobarSiSonFrontera(paisDestino, paisPartida));
-    if (this.comprobarSiSonFrontera(paisDestino, paisPartida)) {
-      return true;
-    } else {
-      // Comprobar por qué la primera vez entra y la segunda no
-      console.log('Son frontera2? : ', this.comprobarFronterasMismoColor(paisDestino, paisPartida));
-      if (this.comprobarFronterasMismoColor(paisDestino, paisPartida)) {
-        console.log('segunda vez comprueba fronteras, pprimera vbez no');
-        console.log('el destino tiene fronteras del mismo color');
-        // 3- comprobamos si las fronteras del mismo color tienen en sus fronteras el país de inicio y guardamos las fronteras del color
-        // Si lo tienen devolvemos true, si no lo tienen
-        // Comprobar máximo 5 fronteras (abarca todo el mapa comprobar tiempos)
-        for (let i = 0; i < 5; i++) {
-          if (this.comprobarFronterasMismoColorArray(paisPartida)) {
-            console.log('se ejecuta ' + i + ' vez');
-            return true;
-          }
-        }
-        // Repetir punto 3 hasta que devolvamos conectados o no conectados
+    // Crear nueva lógica conforme me ha comentado jose manuel
+    // Comprobar si son vecinos, si no comprobar los vecinos del destino y sus fronteras, jugar con fronteras y descartar posibilidades
 
-      } else {
-        // si no la tiene, el destino estará aislado y no se podrán mandar tropas - devolvemos false (no conectados)
-        console.log('el destino no tiene fronteras del mismo color');
-        return false;
-      }
-    }
 
+    // // 1- Comprobamos si directamente los países son frontera - si son frontera devolvemos true (conectados)
+    // console.log('Son frontera? : ', this.comprobarSiSonFrontera(paisDestino, paisPartida));
+    // if (this.comprobarSiSonFrontera(paisDestino, paisPartida)) {
+    //   return true;
+    // } else {
+    //   // Comprobar por qué la primera vez entra y la segunda no
+    //   console.log('Son frontera2? : ', this.comprobarFronterasMismoColor(paisDestino, paisPartida));
+    //   if (this.comprobarFronterasMismoColor(paisDestino, paisPartida)) {
+    //     console.log('segunda vez comprueba fronteras, pprimera vbez no');
+    //     console.log('el destino tiene fronteras del mismo color');
+    //     // 3- comprobamos si las fronteras del mismo color tienen en sus fronteras el país de inicio y guardamos las fronteras del color
+    //     // Si lo tienen devolvemos true, si no lo tienen
+    //     // Comprobar máximo 5 fronteras (abarca todo el mapa comprobar tiempos)
+    //     for (let i = 0; i < 5; i++) {
+    //       if (this.comprobarFronterasMismoColorArray(paisPartida)) {
+    //         console.log('se ejecuta ' + i + ' vez');
+    //         return true;
+    //       }
+    //     }
+    //     // Repetir punto 3 hasta que devolvamos conectados o no conectados
+
+    //   } else {
+    //     // si no la tiene, el destino estará aislado y no se podrán mandar tropas - devolvemos false (no conectados)
+    //     console.log('el destino no tiene fronteras del mismo color');
+    //     return false;
+    //   }
+    // }
+    return false;
   }
 
   // Falla este método al buscar paises lejanos
