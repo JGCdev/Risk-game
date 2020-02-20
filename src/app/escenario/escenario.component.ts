@@ -139,7 +139,7 @@ export class EscenarioComponent implements OnInit {
     {
       id: 14,
       nombre: 'Afganistán',
-      frontera: [4, 6, 13, 15, 33],
+      frontera: [4, 6, 13, 15, 35],
       fichas: 1,
       color: 'morado',
       selected: false,
@@ -416,6 +416,7 @@ export class EscenarioComponent implements OnInit {
   fichasAnadir = 0;
   auxFronteras: Array<number> = [];
   auxFronterasArray: Array<number> = [];
+  posibleMovimiento: any;
 
   constructor() {
   }
@@ -424,7 +425,7 @@ export class EscenarioComponent implements OnInit {
   }
 
   clickDch(id) {
-    console.log('Has hecho click en: ' , this.paises[id].nombre);
+    console.log('Has hecho click en: ' , this.paises[id].nombre + ' id: ' + this.paises[id].id);
     // Si es nuestro turno, evaluamos
     if (this.jugador.turno) {
       // Acciones según fase
@@ -460,7 +461,12 @@ export class EscenarioComponent implements OnInit {
           } else {
             if (this.lastIdSelected !== null && this.jugador.colorString === this.paises[id].color) {
               if (this.paisesConectados(this.paises[id], this.paises[this.lastIdSelected])) {
-                console.log('los paises son frontera, abrir modal');
+                console.log('los paises son frontera');
+                this.modal = true;
+                this.posibleMovimiento = {
+                  paisInicio: this.lastIdSelected,
+                  paisFin:  id,
+                };
               } else {
                 console.log('los paises son aliados pero no están conectados');
               }
@@ -525,12 +531,10 @@ export class EscenarioComponent implements OnInit {
         this.jugador.fichasDisp -= event.fichas;
         this.reset();
         if (this.jugador.fichasDisp === 0) {
-          // Cambiamos a siguiente fase después de agotar fichas
           this.jugador.fase++;
         }
         break;
       case 1:
-        // console.log('ataque tipo: ', event.type);
         if (event.type === 1 ) {
           this.ataqueSubito();
         } else {
@@ -540,8 +544,17 @@ export class EscenarioComponent implements OnInit {
         this.reset();
         break;
       case 2:
-        // console.log('fase ordenación');
+        this.moverTropas(event.fichas);
         break;
+    }
+  }
+
+  moverTropas(num) {
+    if (this.paises[this.posibleMovimiento.paisInicio].fichas - 1 >= 1) {
+      console.log('añadimos ' + num + 'tropas a', this.paises[this.posibleMovimiento.paisFin]);
+      this.paises[this.posibleMovimiento.paisFin].fichas += num;
+      this.paises[this.posibleMovimiento.paisInicio].fichas -= num;
+      this.modal = false;
     }
   }
 
@@ -674,101 +687,58 @@ export class EscenarioComponent implements OnInit {
 
   paisesConectados(paisDestino, paisPartida) {
 
+    // Posible refactorización del método pero funcionando 100%, testear en diferentes escenarios
     // Crear nueva lógica conforme me ha comentado jose manuel
-    // Comprobar si son vecinos, si no comprobar los vecinos del destino y sus fronteras, jugar con fronteras y descartar posibilidades
+    // Filosofía: Comprobar si son vecinos, si no comprobar los vecinos del destino y tener array aux de descartes
+    let estaConectado = false;
+    const idOrigen = paisPartida.id;
+    const idDestino = paisDestino.id;
+    console.log(idOrigen);
+    console.log(idDestino);
 
-
-    // // 1- Comprobamos si directamente los países son frontera - si son frontera devolvemos true (conectados)
-    // console.log('Son frontera? : ', this.comprobarSiSonFrontera(paisDestino, paisPartida));
-    // if (this.comprobarSiSonFrontera(paisDestino, paisPartida)) {
-    //   return true;
-    // } else {
-    //   // Comprobar por qué la primera vez entra y la segunda no
-    //   console.log('Son frontera2? : ', this.comprobarFronterasMismoColor(paisDestino, paisPartida));
-    //   if (this.comprobarFronterasMismoColor(paisDestino, paisPartida)) {
-    //     console.log('segunda vez comprueba fronteras, pprimera vbez no');
-    //     console.log('el destino tiene fronteras del mismo color');
-    //     // 3- comprobamos si las fronteras del mismo color tienen en sus fronteras el país de inicio y guardamos las fronteras del color
-    //     // Si lo tienen devolvemos true, si no lo tienen
-    //     // Comprobar máximo 5 fronteras (abarca todo el mapa comprobar tiempos)
-    //     for (let i = 0; i < 5; i++) {
-    //       if (this.comprobarFronterasMismoColorArray(paisPartida)) {
-    //         console.log('se ejecuta ' + i + ' vez');
-    //         return true;
-    //       }
-    //     }
-    //     // Repetir punto 3 hasta que devolvamos conectados o no conectados
-
-    //   } else {
-    //     // si no la tiene, el destino estará aislado y no se podrán mandar tropas - devolvemos false (no conectados)
-    //     console.log('el destino no tiene fronteras del mismo color');
-    //     return false;
-    //   }
-    // }
-    return false;
-  }
-
-  // Falla este método al buscar paises lejanos
-  comprobarFronterasMismoColorArray(paisPartida) {
-    console.log('Auxfronterasarray ', this.auxFronterasArray);
-    const auxFronterasArrayConst = this.auxFronterasArray;
-    this.auxFronterasArray = [];
-    let resultado = false;
-    auxFronterasArrayConst.forEach( (elem) => {
-      this.paises[elem].frontera.forEach( (numeroFrontera) => {
-        // Aquí comprobamos si los vecinos del pais de destino del mismo color hacen match con el pais de origen
-        if (this.paises[numeroFrontera].id === paisPartida.id) {
-          console.log('una de las fronteras del array tiene como vecino el país de partida');
-          resultado = true;
-        }
-        // Si no hacen match hay que seguir buscando en los vecinos de los vecinos que sean del mismo color
-        if (this.paises[numeroFrontera].color === paisPartida.color && numeroFrontera !== paisPartida.id) {
-          console.log('la segunda frontera hace match', numeroFrontera);
-          this.auxFronterasArray.push(numeroFrontera);
-        }
-      });
-    });
-    console.log('fronteras:  ', this.auxFronterasArray);
-    this.auxFronterasArray = this.limpiarArray(this.auxFronterasArray);
-
-    console.log('resultado ', resultado);
-    return resultado;
-  }
-
-  limpiarArray(array){
-      const uniqueArray = [];
-      // Loop through array values
-      for (const value of array){
-        if (uniqueArray.indexOf(value) === -1){
-            uniqueArray.push(value);
-        }
+    // Crear array de ID de paises excluyendo diferente color, eliminar el destino y el inicio
+    const paisesAliados = [];
+    this.paises.forEach( (elem) => {
+      if (elem.color === paisPartida.color && elem.id !== paisDestino.id && elem.id !== paisPartida.id) {
+        paisesAliados.push(elem.id);
       }
-      return uniqueArray;
-  }
+    });
+    console.log('array de paises aliados ', paisesAliados);
 
-  comprobarFronterasMismoColor(paisDestino, paisPartida) {
+    // Comprobar las fronteras del pais de destino, si hay de color turno, comprobamos si alguna es el origen
+    // Si no es el origen, quitamos las fronteras del color en el pais de destino, del array de IDs de los paises de color
+    let fronterasColor = [];
     paisDestino.frontera.forEach(element => {
-      if (this.paises[element].color === paisPartida.color) {
-        console.log('elemento: ', element);
-        this.auxFronterasArray.push(element);
+      if (element === idOrigen) {
+        estaConectado = true;
+      } else {
+        if (paisesAliados.includes(element)) {
+          fronterasColor.push(element);
+        }
       }
     });
-    this.auxFronterasArray = this.limpiarArray(this.auxFronterasArray);
-    if (this.auxFronterasArray.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
-  comprobarSiSonFrontera(paisA, paisB) {
-    let sonFrontera = false;
-    paisB.frontera.forEach( (elem) => {
-      if (elem === paisA.id) {
-        sonFrontera = true;
+    if (!estaConectado && fronterasColor.length > 0 ) {
+      while (estaConectado === false && paisesAliados.length !== 0) {
+        fronterasColor.forEach( (elem, i) => {
+          if (elem === idOrigen) {
+            estaConectado = true;
+          } else {
+            fronterasColor = [];
+            this.paises[elem].frontera.forEach( ( elemento ) => {
+              if (elemento === idOrigen) {
+                estaConectado = true;
+              } else if (paisesAliados.includes(elemento)) {
+                fronterasColor.push(elemento);
+                paisesAliados.splice(paisesAliados.indexOf(elem), 1);
+              }
+            });
+          }
+        });
       }
-    });
-    return sonFrontera;
+    }
+    console.log(fronterasColor);
+    return estaConectado;
   }
 
   reset() {

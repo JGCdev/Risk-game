@@ -13,9 +13,10 @@
             </div>
         </div>
         <div class="box" *ngIf="jugador.fase === 2">
-            <h4>Recolocar:</h4>
-            <button>Vida o muerte</button>
-            <button>Por turnos</button>
+            <span>Recolocar</span>
+            <span>¿Cuántas unidades deseas enviar al destino?</span>
+            <input type="number" name="tropas" min="1" [(ngModel)]="fichasMover">
+            <button class="action-btn" (click)="moverFichas(fichasMover)">Añadir</button>
         </div>
     </div>
 </div>
