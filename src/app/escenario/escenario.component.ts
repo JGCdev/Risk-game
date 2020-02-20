@@ -8,7 +8,7 @@ import { Pais } from '../pais';
 })
 export class EscenarioComponent implements OnInit {
 
-  // Completar demás paises e importar de algún archivo como mapa o objeto juego
+  // importación desde JSON
   paises: Array<Pais> = [
     {
       id: 0,
