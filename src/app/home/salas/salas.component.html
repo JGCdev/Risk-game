@@ -1,0 +1,54 @@
+<div class="page-container">
+    <div class="container-wrapper">
+        <div class="header">
+            <h1>Bienvenido {{playerName}}</h1>
+        </div>
+        <div class="salas-container">
+            <div class="salas-header">
+                <h3>Únete a una sala</h3>
+                <div class="filter-action">
+                    <i class="fa fa-bars"></i>
+                </div>
+            </div>
+            <div class="salas-body">
+                <div class="filtro">
+                    <div class="filtro-grupo">
+                        <label>Máximo personas</label>
+                        <select>
+                            <option>Sin filtro</option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label>Máximo tiempo por turno</label>
+                        <select>
+                            <option>Sin filtro</option>
+                            <option>1</option>
+                            <option>2</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label>Tipo inicio</label>
+                        <select>
+                            <option>Sin filtro</option>
+                            <option>Automático</option>
+                            <option>Unidad a unidad</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <button class="btn">RESET</button>
+                    </div>
+                </div>
+                <app-lista-salas *ngIf="listaSalas.length > 0" [lista]="listaSalas"></app-lista-salas>
+                <div *ngIf="listaSalas.length < 1"> No hay salas disponibles</div>
+                <div class="actions">
+                    <button class="btn" [routerLink]="['/salas/crear-sala']">CREAR NUEVA SALA</button>
+                </div>
+            </div>
+        </div>
+        <div class="container-info">
+            10 Personas conectadas
+        </div>
+    </div>
+</div>

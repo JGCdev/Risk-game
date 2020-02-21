@@ -7,7 +7,11 @@ import { EscenarioComponent } from './escenario/escenario.component';
 
 const routes: Routes = [
   {
-    path: '', redirectTo: 'comienzo', pathMatch: 'full'
+    path: '', redirectTo: 'salas', pathMatch: 'full'
+  },
+  {
+    path: 'salas',
+    loadChildren: () => import('./home/home.module').then(m => m.HomeModule)
   },
   {
     path: 'comienzo', component: ComienzoComponent

@@ -1,0 +1,42 @@
+<div class="page-container">
+    <div class="container-wrapper">
+       <h1>Crear una sala</h1>
+    </div>
+    <div class="form-wrapper">
+        <form [formGroup]="addSalaForm" (ngSubmit)="crearSala()">
+            <div class="form-group">
+                <label>
+                    Tiempo:
+                </label>
+                <select fornControlName="tiempo">
+                    <option>Seleccionar</option>
+                    <option  [value]="0">1 min</option>
+                    <option   [value]="1">2 min</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>
+                    Máximo de jugadores:
+                </label>
+                <select fornControlName="jugadores">
+                    <option>Seleccionar</option>
+                    <option>2</option>
+                    <option [ngValue]="3">3</option>
+                    <option  [ngValue]="4">4</option>
+                    <option  [ngValue]="5">5</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>
+                    Inicio:
+                </label>
+                <select fornControlName="inicio" id="inicio">
+                    <option>Seleccionar</option>
+                    <option  [ngValue]="0">Manual</option>
+                    <option  [ngValue]="1">Auto</option>
+                </select>
+            </div>
+            <input class="btn" type="submit" value="Crear">
+        </form>
+    </div>
+</div>

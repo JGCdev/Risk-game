@@ -35,7 +35,7 @@ export class ComienzoComponent implements OnInit {
 
     this.ss.conectar(usuario);
 
-    this.router.navigate(['partidas']);
+    this.router.navigate(['config-salas']);
   }
 
 }

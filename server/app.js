@@ -1,7 +1,7 @@
 const express = require("express")();
 const http = require("http").Server(express);
 const io = require("socket.io")(http);
-const partida = require('./controllers/partida');
+const partidaController = require('./controllers/partida');
 
 http.listen(3000, () => {
     console.log("Listening at :3000...");
@@ -11,7 +11,7 @@ http.listen(3000, () => {
 io.set('origins', 'http://localhost:4200'); 
 // io.set('origins', 'http://192.168.0.164:4200'); 
 
-partida.init();
+partidaController.init();
 
 // Constructor
 var partidas = [];
@@ -25,7 +25,6 @@ var colores = generateColors();
 
 
 // Next step - asignar fichas automáticamente y rellenar el mapa de forma inicial
-
 io.on("connection", socket => {
 
     // Asignamos variable local al socket con el número de sala = al numero de partida

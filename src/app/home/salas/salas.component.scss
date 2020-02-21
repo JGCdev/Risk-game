@@ -1,0 +1,64 @@
+.page-container{
+    background-color: black;
+    color:white;
+    min-height:100%;
+    padding: 20px 0px;
+    .container-wrapper{
+        padding:20px 0px 0px;
+        .header{
+            text-align:center;
+        }
+        .container-info{
+            width:90%;
+            margin: 0 auto;
+        }
+        .salas-container{
+            width:90%;
+            border:2px solid white;
+            margin: 40px auto;
+            text-align: center;
+            .salas-header{  
+                background:white;
+                color:black;
+                padding:5px 0px;
+                text-transform: uppercase;
+                position: relative;
+                .filter-action{
+                    font-size: 1.9rem;
+                    position: absolute;
+                    right: 20px;
+                    top: 13px;
+                }
+            }
+            .salas-body{
+                padding:10px 0px 20px;
+                .actions{
+                    margin:20px 0px;
+                }
+            }
+            .filtro{
+                border-bottom:2px solid white;
+                display: flex;
+                margin-bottom:20px;
+                padding-bottom:10px;
+                .filtro-grupo{
+                    display:flex;
+                    flex: 1;
+                    flex-direction: column;
+                    padding:5px 20px;
+                    align-content: center;
+                    justify-content: center;
+
+                    label{
+                        font-size:14px;
+                    }
+                    .btn{
+                        padding:10px; 
+                        font-family: 'Paytone One', sans-serif;
+
+                    }
+                }
+            }
+        }
+    }
+}

@@ -4,7 +4,6 @@ module.exports = {
     
         init: function() {
             console.log('Iniciamos partida');
-            console.log(paisesArray);
         }
 
 };

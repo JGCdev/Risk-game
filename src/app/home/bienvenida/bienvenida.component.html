@@ -1,0 +1,12 @@
+<div class="container">
+    <div class="login page">
+        <h1>Bienvenido a RISK online!</h1>
+        <div class="form">
+            <h3 class="title">Elige un nombre</h3>
+            <form [formGroup]="registerForm" (ngSubmit)="conectar()">
+                    <input class="usernameInput" type="text" formControlName="name" id="name" />
+                    <input class="btn" type="submit" value="Conectar">
+            </form>
+        </div>
+    </div>
+</div>
