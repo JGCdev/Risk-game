@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class JugadorService {
 
   nick: string;
-
+  sala: any;
   constructor() { }
 
   getNombre() {
@@ -15,5 +15,13 @@ export class JugadorService {
 
   setNombre(nick) {
     this.nick = nick;
+  }
+
+  setSala(val) {
+    this.sala = val;
+  }
+
+  getSala() {
+    return this.sala;
   }
 }

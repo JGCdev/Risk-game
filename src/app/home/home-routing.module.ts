@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { BienvenidaComponent } from './bienvenida/bienvenida.component';
 import { SalasComponent } from './salas/salas.component';
 import { CrearSalaComponent } from './crear-sala/crear-sala.component';
+import { PantallaCargaComponent } from './pantalla-carga/pantalla-carga.component';
 
 
 const routes: Routes = [
@@ -20,6 +21,10 @@ const routes: Routes = [
   {
     path: 'crear-sala',
     component: CrearSalaComponent
+  },
+  {
+    path: 'sala-espera/:id',
+    component: PantallaCargaComponent
   }
 ];
 

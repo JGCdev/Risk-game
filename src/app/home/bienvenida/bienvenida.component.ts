@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { JugadorService } from 'src/app/servicios/jugador.service';
+import { SocketService } from 'src/app/servicios/socket.service';
 
 @Component({
   selector: 'app-bienvenida',
@@ -12,7 +13,7 @@ export class BienvenidaComponent implements OnInit {
 
   registerForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private router: Router, private js: JugadorService) {
+  constructor(private formBuilder: FormBuilder, private router: Router, private js: JugadorService, private ss: SocketService) {
     this.registerForm = this.formBuilder.group({
       name: ['', Validators.required]
     });

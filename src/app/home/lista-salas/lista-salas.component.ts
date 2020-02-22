@@ -9,7 +9,7 @@ import { Sala } from 'src/app/models/sala';
 export class ListaSalasComponent implements OnInit {
 
   @Input() lista: Array<Sala>;
-
+  enumInicio = ['Manual', 'Auto'];
   constructor() { }
 
   ngOnInit() {

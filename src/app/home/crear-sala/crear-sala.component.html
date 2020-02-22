@@ -1,39 +1,41 @@
 <div class="page-container">
     <div class="container-wrapper">
        <h1>Crear una sala</h1>
+       <button [routerLink]="['/salas/elegir-sala']"  class="btn small">Volver atrás</button>
     </div>
     <div class="form-wrapper">
-        <form [formGroup]="addSalaForm" (ngSubmit)="crearSala()">
+        <form (ngSubmit)="crearSala()">
             <div class="form-group">
                 <label>
                     Tiempo:
                 </label>
-                <select fornControlName="tiempo">
-                    <option>Seleccionar</option>
-                    <option  [value]="0">1 min</option>
-                    <option   [value]="1">2 min</option>
+                <select [(ngModel)]="configPartida.tiempo" name="tiempo">
+                    <option value="">Seleccionar</option>
+                    <option value="1">1 min</option>
+                    <option value="2">2 min</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>
                     Máximo de jugadores:
                 </label>
-                <select fornControlName="jugadores">
-                    <option>Seleccionar</option>
-                    <option>2</option>
-                    <option [ngValue]="3">3</option>
-                    <option  [ngValue]="4">4</option>
-                    <option  [ngValue]="5">5</option>
+                <select [(ngModel)]="configPartida.jugadores" name="players">
+                    <option value="">Seleccionar</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>
                     Inicio:
                 </label>
-                <select fornControlName="inicio" id="inicio">
-                    <option>Seleccionar</option>
-                    <option  [ngValue]="0">Manual</option>
-                    <option  [ngValue]="1">Auto</option>
+                <select [(ngModel)]="configPartida.inicio" name="config">
+                    <option value="">Seleccionar</option>
+                    <option value="0">Manual</option>
+                    <option value="1">Auto</option>
                 </select>
             </div>
             <input class="btn" type="submit" value="Crear">

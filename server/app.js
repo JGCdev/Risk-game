@@ -1,7 +1,9 @@
 const express = require("express")();
 const http = require("http").Server(express);
 const io = require("socket.io")(http);
-const partidaController = require('./controllers/partida');
+
+// const partidaController = require('./controllers/partida');
+// partidaController.init();
 
 http.listen(3000, () => {
     console.log("Listening at :3000...");
@@ -11,77 +13,185 @@ http.listen(3000, () => {
 io.set('origins', 'http://localhost:4200'); 
 // io.set('origins', 'http://192.168.0.164:4200'); 
 
-partidaController.init();
-
-// Constructor
-var partidas = [];
-var partida = {
-    "personas": [
-    ]
-}
-var usuariosRegistrados = 0;
+// Constructor - Iniciamos variables partidas
 var numeroPartida = 0;
 var colores = generateColors();
+var jugadoresListaEspera = [];
+var partidas = [];
+var partida = {
+    personas: [
+    ]
+}
 
-
-// Next step - asignar fichas automáticamente y rellenar el mapa de forma inicial
+// Optimizar todos los foreach
 io.on("connection", socket => {
 
     // Asignamos variable local al socket con el número de sala = al numero de partida
     var currentRoomId;
     console.log('socket connection -', socket.id)
 
-    socket.on('conectar', function(data){
-    
-        const persona = {
-            id: socket.id,
-            nombre: data.usuario,
-            color: colores[usuariosRegistrados]
-        }
+    socket.on('conectarListaEspera', function(data){ 
+        console.log('----EVENTO conectar a LISTA DE ESPERA---------');
+        socket.join('listaEspera');
+        data.id = socket.id;
 
-        // Unimos usuario a su sala
-        socket.join('sala-' + numeroPartida);
-        currentRoomId =  numeroPartida;
-        
-
-        partida.personas.push(persona);
-        partida.numeroPartida = numeroPartida;
-        
-        // Lógica de entrada a una sala
-        if (usuariosRegistrados === 0) {  // Si no hay nadie creamos partida
-            partidas.push(partida);
-        }
-
-        // Anunciamos que entra un nuevo usuario
-        io.sockets.in('sala-'+numeroPartida).emit('partida', partidas[numeroPartida].personas);
-
-        usuariosRegistrados++;
-
-        // Destruimos para crear nueva partida
-        if (partida.personas.length === 3) {
-            usuariosRegistrados = 0;
-            partida = {
-                "personas": [
-                ]
+        // Comprobamos si ya está en la lista antes de añadirlo - refactorizar
+        let yaEstaEnLaLista = false;
+        jugadoresListaEspera.forEach(element => {
+            if (element.id === data.id) {
+                yaEstaEnLaLista = true;
             }
-            colores = generateColors(); 
-            io.sockets.in('sala-'+numeroPartida).emit('comenzarPartida', partidas[numeroPartida]);
-            numeroPartida++;
-        } 
+        });
+        if (yaEstaEnLaLista) {
+            console.log('el jugador ya estaba en lista de espera');
+        } else {
+            jugadoresListaEspera.push(data);
+            console.log('nueva conexión a lista de espera', data);
+        }
+        io.sockets.in('listaEspera').emit('listaEspera', {jugadoresListaEspera, partidas});
     });
 
-    socket.on('disconnect', function(){
-        console.log('Disconnection');
-        if (partidas[currentRoomId] !== undefined) {
-            const personas = partidas[currentRoomId].personas;
-            for (let i = 0; i < personas.length; i++) {
-                if ( personas[i] !== undefined && personas[i].id === socket.id) {
-                    personas.splice(i,1);
+    socket.on('crearSala', function(sala){ 
+        console.log('----EVENTO CREAR SALA ---------');
+        // Lógica crear una sala - refaztorizar
+        console.log(sala);
+        partida = {
+            id: numeroPartida,
+            config: sala.config,
+            colores: colores,
+            personas: [
+                {
+                    nick: sala.user,
+                    id: socket.id,
+                    color: colores[0]
                 }
+            ]
+        };
+
+        // Eliminamos el color asignado al creador
+        partida.colores.splice(0, 1);
+
+        // Añadimos partida a la lista de partidas y volvemos a generar colores e ID para la siguiente
+        partidas.push(partida);
+        colores = generateColors();
+
+        // Dejamos la lista de espera y eliminamos al jugador del array - refactorizar
+        socket.leave('listaEspera');
+        jugadoresListaEspera.forEach( (elem, i) => {
+            if (socket.id === elem.id) {
+                jugadoresListaEspera.splice(i, 1);
+                console.log('salimos de lista de espera para entrar en sala');
             }
-            io.sockets.in('sala-'+currentRoomId).emit('desc', personas);
+        });
+        // Entramos a la sala y emitimos cambios en lista de espera y sala
+        socket.join('sala-' + numeroPartida);
+        io.sockets.in('listaEspera').emit('listaEspera', {jugadoresListaEspera, partidas});
+        io.sockets.in('sala-'+ numeroPartida).emit('salaCreada', partida);
+
+        // Aumentamos número de partida después de emitir - posible refactor
+        numeroPartida++;
+    });
+
+    socket.on('conectarSala', function(objConectar){ 
+        console.log('----EVENTO CONECTAR A SALA---------');
+        // Lógica conectar a partida
+        if (objConectar.nick) {
+            // Obtenemos sala con ID de sala
+            let partidaAux;
+            partidas.forEach( (elem) => {
+                if (elem.id == objConectar.idSala) {
+                    partidaAux = elem;
+                }
+            });
+            // Si la sala existe y no está llena
+            if (partidaAux && partidaAux.config.jugadores > partidaAux.personas.length) {
+                // añadimos al usuario
+                socket.join('sala-' + objConectar.idSala);
+                // Seteamos variable local a nivel de socket
+                currentRoomId = objConectar.idSala;
+                let existeEnlaSala = false;
+                partidaAux.personas.forEach( (per, i) => {
+                    if (per.id === socket.id) {
+                        existeEnlaSala = true;
+                    }
+                });
+                if (!existeEnlaSala) {
+                    const user = {
+                        nick: objConectar.nick,
+                        id: socket.id,
+                        color: partidaAux.colores[0]
+                    }
+                    partidaAux.colores.splice(0, 1);
+                    console.log('colores: ', partidaAux.colores);
+                    partidaAux.personas.push(user);
+                }
+
+                socket.leave('listaEspera');
+                // Eliminamos jugador de usuarios en lista de espera
+                jugadoresListaEspera.forEach( (elem, i) => {
+                    if (socket.id === elem.id) {
+                        jugadoresListaEspera.splice(i, 1);
+                    }
+                });
+                console.log('Usuario nuevo a entrado a la sala', partidaAux);
+                io.sockets.in('sala-' + objConectar.idSala).emit('nuevaConexionSala', partidaAux);
+                io.sockets.in('listaEspera').emit('listaEspera', {jugadoresListaEspera, partidas});
+            } else {
+                // Manejar este error - La partida está llena o ya no existe
+                io.sockets.in('listaEspera').emit('errorConexionSala', 'La partida está llena');
+            }
+
         }
-        socket.leave('sala-' + currentRoomId);
+
+    });
+
+
+    socket.on('disconnect', function(){
+        console.log('----EVENTO DESCONEXIÓN---------');
+
+        // Si el desconectado estaba en lista de espera:
+        if (currentRoomId === undefined) {
+            console.log('el socket que abandona estaba en lista de espera');
+            socket.leave('listaEspera');
+             // Eliminamos jugador de usuarios en lista de espera
+            jugadoresListaEspera.forEach( (elem, i) => {
+                if (socket.id === elem.id) {
+                    jugadoresListaEspera.splice(i, 1);
+                }
+            });
+        // Si el desconectado estaba en una sala
+        } else {
+            console.log('se marchan de la sala : ', currentRoomId);
+            console.log('el socket abandona y no estaba en lista de espera, eliminar de la sala');
+            // Obtenemos partida con ID
+            let partidaAux;
+            partidas.forEach( (elem) => {
+                if (elem.id == currentRoomId) {
+                    partidaAux = elem;
+                }
+            });
+            // eliminamos persona y volvemos a meter color a array
+            partidaAux.personas.forEach( (elem, i ) => {
+                if (elem.id === socket.id) {
+                    partidaAux.colores.push(partidaAux.personas[i].color);
+                    partidaAux.personas.splice(i, 1);
+                }
+            });
+            // SI era la última persona, eliminamos la partida
+            if (partidaAux.personas.length === 0) {
+                partidas.forEach( (elem, i) => {
+                    if (elem.id === partidaAux.id) {
+                        partidas.splice(i, 1);
+                    }
+                });
+                // Emitimos cambio partida eliminada a lista de espera
+                io.sockets.in('listaEspera').emit('listaEspera', {jugadoresListaEspera, partidas});
+            }
+            // Emitimos cambio persona que ha salido de la sala
+            socket.leave('sala-' + currentRoomId);
+            io.sockets.in('sala-' + currentRoomId).emit('nuevaConexionSala', partidaAux);
+        }
+        io.sockets.in('listaEspera').emit('listaEspera', {jugadoresListaEspera, partidas});
     })
 
 });

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { SocketService } from 'src/app/servicios/socket.service';
+import { JugadorService } from 'src/app/servicios/jugador.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-crear-sala',
@@ -7,23 +9,35 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
   styleUrls: ['./crear-sala.component.scss']
 })
 export class CrearSalaComponent implements OnInit {
-  addSalaForm: FormGroup;
-  constructor(private formBuilder: FormBuilder) { }
+  configPartida = {
+    tiempo: '',
+    jugadores: '',
+    inicio: ''
+  };
+  constructor(private ss: SocketService, private js: JugadorService, private router: Router) {
+
+  }
 
   ngOnInit() {
-    this.addSalaForm = this.formBuilder.group({
-      tiempo: ['', Validators.required],
-      jugadores: ['', Validators.required],
-      inicio: ['', Validators.required]
+    this.ss.onSalaCreada().subscribe( (res) => {
+      console.log('navegamos a sala con id de sala');
+      console.log(res);
+      this.js.setSala(res);
+      this.router.navigate(['/salas/sala-espera/' + res.id]);
     });
   }
 
   crearSala() {
-    console.log(this.addSalaForm);
-    if (this.addSalaForm.invalid) {
+    if (this.configPartida.tiempo !== '' && this.configPartida.inicio !== '' && this.configPartida.jugadores !== '') {
+      console.log('Form valid: ', this.configPartida);
+      const partida = {
+        config: this.configPartida,
+        user: this.js.getNombre()
+      };
+      this.ss.crearSala(partida);
+    } else {
       return;
     }
-
 
   }
 }
