@@ -17,22 +17,22 @@ export class PartidasComponent implements OnInit {
   mensaje: string;
 
   constructor(private ss: SocketService, private router: Router) {
-    this.ss.onMessage().subscribe( (data: Array<Jugador>) => {
-      console.log('Datos recibidos', data);
-      this.jugadores = data;
-    });
-    this.ss.onDisconnect().subscribe( (data: Array<Jugador>) => {
-      console.log('Datos recibidos, un usuario se ha desconectado', data);
-      this.mensaje = 'Un usuario se desconectó de la partida...';
-      setTimeout( () => {
-        this.mensaje = null;
-      }, 4000);
-      this.jugadores = data;
-    });
-    this.ss.comenzarPartida().subscribe( (data: Partida) => {
-      console.log('Comienza la partida', data);
-      this.router.navigate(['escenario']);
-    });
+    // this.ss.onMessage().subscribe( (data: Array<Jugador>) => {
+    //   console.log('Datos recibidos', data);
+    //   this.jugadores = data;
+    // });
+    // this.ss.onDisconnect().subscribe( (data: Array<Jugador>) => {
+    //   console.log('Datos recibidos, un usuario se ha desconectado', data);
+    //   this.mensaje = 'Un usuario se desconectó de la partida...';
+    //   setTimeout( () => {
+    //     this.mensaje = null;
+    //   }, 4000);
+    //   this.jugadores = data;
+    // });
+    // this.ss.comenzarPartida().subscribe( (data: Partida) => {
+    //   console.log('Comienza la partida', data);
+    //   this.router.navigate(['escenario']);
+    // });
   }
 
   ngOnInit() {

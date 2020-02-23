@@ -155,7 +155,8 @@ io.on("connection", socket => {
                             listaPaisesColoresDisponibles.push(persona.color);
                         });
                         console.log('Rellenamos paises con: ', listaPaisesColoresDisponibles);
-                        partidaAux.listaPaises = rellenarPaises(listaPaisesColoresDisponibles, paises);
+                        const paisesCopy = paises;
+                        partidaAux.listaPaises = rellenarPaises(listaPaisesColoresDisponibles, paisesCopy);
                         // Enviar señal para terminar de setear las tropas que faltan - Revisar como retomar
                     } else {
                         // Enviar paises sin color para rellenar por el usuario
@@ -227,16 +228,15 @@ io.on("connection", socket => {
 
 });
 
-function rellenarPaises(lista, paises) {
+// Refactor
+function rellenarPaises(lista, paisesCopy) {
     console.log('introducimos colores: ', lista);
     let auxColores = generateRandomArray(lista.length);
-    const maximoFichasPorPais = 70 / lista.length;
-    let arrayFichasPais = [];
-    lista.forEach(() => {
-        arrayFichasPais.push(0);
-    });
-    paises.forEach( (elem, i) => {
-        // Repartir colores OK!
+    // Asignar colores - hacer más aleatorio
+    paisesCopy.forEach( (elem, i) => {
+        // Reiniciamos array de paises
+        elem.color = '';
+        elem.fichas = 0;
         while (elem.color.length < 1) {
             if (auxColores.length > 0) {
                 elem.color = lista[auxColores[0]];
@@ -245,16 +245,39 @@ function rellenarPaises(lista, paises) {
                 auxColores = generateRandomArray(lista.length);
             }
         }
-
-        // Repartir fichas -- sacar del foreach si es necesario - retomar aquí
-        console.log(lista.indexOf(elem.color));
-        // Añadir más fichas por país
-        arrayFichasPais[lista.indexOf(elem.color)]++;
         elem.fichas++;
     });
-    console.log('Situación fichas paises: ', arrayFichasPais);
 
-    return paises;
+
+    // Parte añadir fichas sobrantes
+    const fichasSobrantesPorPais = Math.round((72 / lista.length) - (42 / lista.length));
+    let auxFichasPais = [];
+    lista.forEach( () => {
+        auxFichasPais.push(fichasSobrantesPorPais);
+    });
+    console.log('fichas a añadir a cada color: ', fichasSobrantesPorPais);
+    auxFichasPais.forEach( (elem, i) => {
+        while(elem > 1) {
+            let max;
+            // Ratio de nueva barrida, aumentar para fichas más altas
+            if (elem > 3) {
+                max = 2;
+            } else {
+                max = elem;
+            }
+            const numRandom = Math.floor(Math.random() * max+1) + 0;
+            const paisRandom = Math.floor(Math.random() * paisesCopy.length) + 0;
+
+            // asignar fichas a pais random si es del color
+            if (paisesCopy[paisRandom].color === lista[i] && numRandom <= elem) {
+                elem -= numRandom;
+                paisesCopy[paisRandom].fichas += numRandom;
+            }
+            
+        }
+    });
+    console.log('devolvemos paises: ', auxFichasPais);
+    return paisesCopy;
 }
 
 function generateRandomArray(arraySize) {
