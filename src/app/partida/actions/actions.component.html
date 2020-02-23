@@ -1,0 +1,22 @@
+<div class="modal-container">
+    <div class="modal-wrapper">
+        <div class="box" *ngIf="jugador.fase === 0">
+            <span>Añadir tropas (max {{jugador.fichasDisp}}) </span>
+            <input type="number" name="tropas" min="0" max="{{jugador.fichasDisp}}" [(ngModel)]="fichasAnadir">
+            <button class="action-btn {{jugador.color}}" (click)="addFichas(fichasAnadir)">Añadir</button>
+        </div>
+        <div class="box" *ngIf="jugador.fase === 1">
+            <span>Modalidad de ataque</span>
+            <div class="buttons-container">
+                <button  class="action-btn " (click)="muerteSubita()">Muerte súbita</button>
+                <button  class="action-btn" (click)="porTurnos()">Por turnos</button>
+            </div>
+        </div>
+        <div class="box" *ngIf="jugador.fase === 2">
+            <span>Recolocar</span>
+            <span>¿Cuántas unidades deseas enviar al destino?</span>
+            <input type="number" name="tropas" min="1" [(ngModel)]="fichasMover">
+            <button class="action-btn" (click)="moverFichas(fichasMover)">Añadir</button>
+        </div>
+    </div>
+</div>

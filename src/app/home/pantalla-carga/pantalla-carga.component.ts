@@ -42,7 +42,6 @@ export class PantallaCargaComponent implements OnInit {
       // } else {
       //   console.log('partida llena, comenzamos');
       //   this.ss.comenzarPartida(this.sala.id);
-       
      }
       console.log('entra alguien nuevo, recargamso objeto sala: ', this.sala);
     });

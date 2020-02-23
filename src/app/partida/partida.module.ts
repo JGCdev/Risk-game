@@ -4,10 +4,11 @@ import { CommonModule } from '@angular/common';
 import { PartidaRoutingModule } from './partida-routing.module';
 import { EscenarioComponent } from './escenario/escenario.component';
 import { FormsModule } from '@angular/forms';
+import { ActionsComponent } from './actions/actions.component';
 
 
 @NgModule({
-  declarations: [EscenarioComponent],
+  declarations: [EscenarioComponent, ActionsComponent],
   imports: [
     CommonModule,
     PartidaRoutingModule,

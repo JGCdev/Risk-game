@@ -10,17 +10,17 @@ import { JugadorService } from 'src/app/servicios/jugador.service';
   styleUrls: ['./escenario.component.scss']
 })
 export class EscenarioComponent implements OnInit {
-  jugador =
-    {
-      id: 0,
-      nombre: 'Jesus',
-      turno: true,
-      fase: 1,
-      color: 'morado',
-      colorString: 'morado',
-      fichasDisp: 10,
-    };
-
+  // jugador =
+  //   {
+  //     id: 0,
+  //     nombre: 'Jesus',
+  //     turno: true,
+  //     fase: 1,
+  //     color: 'morado',
+  //     colorString: 'morado',
+  //     fichasDisp: 10,
+  //   };
+  jugador: any;
   lastIdSelected: number = null;
   modal: boolean;
   conquistarModal = {
@@ -45,6 +45,7 @@ export class EscenarioComponent implements OnInit {
 
   idJugador: any;
   jugadorNuevo: any;
+  menuActionsOpen: boolean;
   constructor(private ss: SocketService, private router: Router, private route: ActivatedRoute, private js: JugadorService) {
   }
 
@@ -64,6 +65,9 @@ export class EscenarioComponent implements OnInit {
       this.router.navigate(['']);
     }
 
+  }
+  openMenu() {
+    this.menuActionsOpen = !this.menuActionsOpen;
   }
   clickDch(id) {
     console.log('Has hecho click en: ' , this.paises[id].nombre + ' id: ' + this.paises[id].id);
@@ -100,7 +104,7 @@ export class EscenarioComponent implements OnInit {
           if (this.lastIdSelected === null) {
             this.seleccionarPais(id);
           } else {
-            if (this.lastIdSelected !== null && this.jugador.colorString === this.paises[id].color) {
+            if (this.lastIdSelected !== null && this.jugador.color === this.paises[id].color) {
               if (this.paisesConectados(this.paises[id], this.paises[this.lastIdSelected])) {
                 console.log('los paises son frontera');
                 this.modal = true;
@@ -118,48 +122,6 @@ export class EscenarioComponent implements OnInit {
           break;
       }
 
-    }
-  }
-
-  paisAtacable(id) {
-    if (this.paises[this.lastIdSelected].frontera.indexOf(this.paises[id].id) === -1 || this.paises[this.lastIdSelected].fichas < 2) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  seleccionarPais(id) {
-    if (this.paisEnPosesion(id)) {
-      this.paises[id].selected = ! this.paises[id].selected;
-      if (!this.nadaSeleccionado()) {
-        this.paises[this.lastIdSelected].selected = ! this.paises[this.lastIdSelected].selected;
-      }
-      this.lastIdSelected = id;
-    }
-  }
-
-  nadaSeleccionado() {
-    if (this.lastIdSelected === null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  paisEnPosesion(id) {
-    if (this.paises[id].color === this.jugador.color) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  fichasDisponibles() {
-    if (this.jugador.fichasDisp > 0) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -329,7 +291,6 @@ export class EscenarioComponent implements OnInit {
   paisesConectados(paisDestino, paisPartida) {
 
     // Posible refactorización del método pero funcionando 100%, testear en diferentes escenarios
-    // Crear nueva lógica conforme me ha comentado jose manuel
     // Filosofía: Comprobar si son vecinos, si no comprobar los vecinos del destino y tener array aux de descartes
     let estaConectado = false;
     const idOrigen = paisPartida.id;
@@ -378,7 +339,6 @@ export class EscenarioComponent implements OnInit {
         });
       }
     }
-    console.log(fronterasColor);
     return estaConectado;
   }
 
@@ -388,9 +348,49 @@ export class EscenarioComponent implements OnInit {
     this.modal = false;
   }
 
-
   siguienteFase() {
     this.jugador.fase++;
   }
 
+  paisAtacable(id) {
+    if (this.paises[this.lastIdSelected].frontera.indexOf(this.paises[id].id) === -1 || this.paises[this.lastIdSelected].fichas < 2) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  seleccionarPais(id) {
+    if (this.paisEnPosesion(id)) {
+      this.paises[id].selected = ! this.paises[id].selected;
+      if (!this.nadaSeleccionado()) {
+        this.paises[this.lastIdSelected].selected = ! this.paises[this.lastIdSelected].selected;
+      }
+      this.lastIdSelected = id;
+    }
+  }
+
+  nadaSeleccionado() {
+    if (this.lastIdSelected === null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  paisEnPosesion(id) {
+    if (this.paises[id].color === this.jugador.color) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  fichasDisponibles() {
+    if (this.jugador.fichasDisp > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

@@ -3,12 +3,22 @@
     <!-- Acciones -->
     <div class="container-actions">
         <!-- Añadir iconos para acciones, ajustes, estadísticas, ayuda -->
-        <span *ngIf="jugador.turno">Es tu turno</span>
+        <div class="row">
+            <div class="menu-container {{jugador.color}}" (click)="openMenu()">
+                <i class="fa fa-bars"></i>
+            </div>
+            <span class="{{jugador.color}}" *ngIf="jugador.turno">Es tu turno</span>
+        </div>
+        <div class="menu-actions" *ngIf="menuActionsOpen">
+            <div class="resumenJugadores" *ngFor="let jugador of partida.personas">
+                Jugador
+            </div>
+        </div>
     </div>
     
     <!-- Ficha jugador - Refactorizar en un componente-->
     <div class="container-pj">
-        <div class="header-pj">
+        <div class="header-pj {{jugador.color}}">
             {{jugador.nick}}
         </div>
         <div class="content-pj" *ngIf="jugador.turno">
@@ -18,7 +28,7 @@
                     <span *ngIf="jugador.fase === 0"><b>Tropas:</b> {{jugador.fichasDisp}}</span>
                 </div>
                 <div class="turno-info-actions">
-                    <button (click)="siguienteFase()">Siguiente</button>
+                    <button class="action-btn {{jugador.color}}" (click)="siguienteFase()">Siguiente</button>
                 </div>
             </div>
             <div class="conquistar" *ngIf="conquistarModal.active">
@@ -28,6 +38,7 @@
                 <button class="action-btn" (click)="addTropas(fichasAnadir)">Añadir</button>
             </div>
             <!-- <app-modal (moverEvent)="mover($event)" [jugador]="jugador" *ngIf="modal"></app-modal> -->
+            <app-actions (moverEvent)="mover($event)" [jugador]="jugador" *ngIf="modal"></app-actions>
         </div>
     </div>
     
