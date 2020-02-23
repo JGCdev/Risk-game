@@ -1,14 +1,16 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-modal',
-  templateUrl: './modal.component.html',
-  styleUrls: ['./modal.component.scss']
+  selector: 'app-actions',
+  templateUrl: './actions.component.html',
+  styleUrls: ['./actions.component.scss']
 })
-export class ModalComponent implements OnInit {
+export class ActionsComponent implements OnInit {
 
   @Output() moverEvent = new EventEmitter();
+  @Output() closeEvent = new EventEmitter();
   @Input() jugador;
+  fichasMover = 1;
   constructor() { }
 
   ngOnInit() {
@@ -30,5 +32,9 @@ export class ModalComponent implements OnInit {
   moverFichas(num) {
     console.log('move ', num);
     this.moverEvent.emit({ action: 2, fichas: num });
+  }
+
+  closeModal() {
+    this.closeEvent.emit();
   }
 }

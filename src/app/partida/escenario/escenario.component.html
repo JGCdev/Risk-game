@@ -1,37 +1,56 @@
-<div class="mapa">
+<div class="mapa" *ngIf="jugador && paises">
     
     <!-- Acciones -->
     <div class="container-actions">
         <!-- Añadir iconos para acciones, ajustes, estadísticas, ayuda -->
+        <div class="row">
+            <div class="menu-container {{jugador.color}}" (click)="openMenu()">
+                <i class="fa fa-bars"></i>
+            </div>
+            <div class="flex-column"  *ngIf="jugador.turno">
+                <span class="{{jugador.color}} turno">Es tu turno</span>
+                <span class="{{jugador.color}} timer">5:00</span>
+            </div>
+        </div>
+        <div class="menu-actions" *ngIf="menuActionsOpen">
+            <span>Jugadores:</span>
+            <div class="resumenJugadores" *ngFor="let jugador of partida.personas">
+                {{jugador.nick}}
+            </div>
+        </div>
     </div>
     
     <!-- Ficha jugador - Refactorizar en un componente-->
     <div class="container-pj">
-        <div class="header-pj">
-        Turno de xexuszgz
+        <div class="header-pj {{jugador.color}}">
+            {{jugador.nick}}
         </div>
-        <div class="content-pj">
+        <div class="content-pj" *ngIf="jugador.turno">
             <div class="turno-info-container" *ngIf="!modal">
                 <div class="turno-info">
                     <span><b>Fase:</b> {{ fasesIndice[jugador.fase] }}</span>
                     <span *ngIf="jugador.fase === 0"><b>Tropas:</b> {{jugador.fichasDisp}}</span>
                 </div>
                 <div class="turno-info-actions">
-                    <button (click)="siguienteFase()">Siguiente</button>
+                    <button class="action-btn {{jugador.color}}" (click)="siguienteFase()">Siguiente</button>
                 </div>
             </div>
-            <div class="conquistar" *ngIf="conquistarModal.active">
+            <div class="conquistar" *ngIf="conquistarModal.active && jugador.fase === 1">
                 <span>¿Añadir más fichas?</span>
                 <span class="font-mini">Máximo: {{conquistarModal.max}} </span>
                 <input type="number" name="tropasAnadir" min="2" max="{{conquistarModal.max}}" value="0" [(ngModel)]="fichasAnadir">
-                <button class="action-btn" (click)="addTropas(fichasAnadir)">Añadir</button>
+                <div class="row">
+                    <button class="action-btn {{jugador.color}}" (click)="addTropas(0)">No</button>
+                    <button class="action-btn {{jugador.color}}" (click)="addTropas(fichasAnadir)">Añadir</button>
+                </div>
             </div>
-            <app-modal (moverEvent)="mover($event)" [jugador]="jugador" *ngIf="modal"></app-modal>
+            <!-- <app-modal (moverEvent)="mover($event)" [jugador]="jugador" *ngIf="modal"></app-modal> -->
+            <app-actions (moverEvent)="mover($event)" (closeEvent)="close($evt)" [jugador]="jugador" *ngIf="modal"></app-actions>
         </div>
     </div>
     
     <!-- MAPA -->
-    <div class="content">
+    <div class="content" >
         <svg version="1.1"
             id="svg2" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 749.8 519.1"

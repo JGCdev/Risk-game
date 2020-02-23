@@ -1,10 +1,10 @@
 p{
     color:#fff;
-    
 }
 .jugadores-wrapper{
-    margin-top:100px;   
+    padding: 50px;
     text-align:center; 
+    color:white;
 }
 .title{
     margin-bottom:50px;
@@ -14,24 +14,26 @@ p{
     flex-direction: column;
 }
 .row{
-    width: 50%;
+    width: 75%;
     margin: auto;
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
 }
 .player{
-    width: 30%;
+    width: 250px;
     border: 7.5px solid white;
     height: 250px;
     margin: 10px;
     position: relative;
-    background-image: url('../../assets/player.png');
+    background-image: url('../../../assets/player.png');
     background-size: 100%;
     border-radius: 50%;
     overflow: hidden;
     background-position-x: center;
     background-position-y: bottom;
     margin-bottom:20px;
+    color:black;
 }
 .nombre{
     position: absolute;
@@ -42,4 +44,7 @@ p{
     padding: 25px;   
     border-radius: 50%;
     font-size: 20px;
+}
+.pages{
+    background-color:black;
 }

@@ -1,0 +1,18 @@
+<ul class="pages">
+    <li class="login page">
+        <div class="jugadores-wrapper"  *ngIf="sala">
+            <h3 class="title">Partida id: {{sala.id}} <br>Esperando jugadores...</h3>
+            <div class="tabs-players">
+                <div class="row">
+                    <div class="player {{jugador.color}}-borde" *ngFor="let jugador of sala.personas">
+                        <div class="nombre {{jugador.color}}">{{jugador.nick}}</div>
+                    </div>
+                    <div class="player" *ngFor="let anonimo of jugadoresPorLLegar">
+                        <div class="nombre">Waiting Player</div>
+                    </div>
+                </div>
+                <p *ngIf="mensaje !== null">{{mensaje}}</p>  
+            </div>
+        </div>
+    </li>
+</ul>
