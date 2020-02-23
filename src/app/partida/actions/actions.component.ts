@@ -8,7 +8,9 @@ import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 export class ActionsComponent implements OnInit {
 
   @Output() moverEvent = new EventEmitter();
+  @Output() closeEvent = new EventEmitter();
   @Input() jugador;
+  fichasMover = 1;
   constructor() { }
 
   ngOnInit() {
@@ -30,5 +32,9 @@ export class ActionsComponent implements OnInit {
   moverFichas(num) {
     console.log('move ', num);
     this.moverEvent.emit({ action: 2, fichas: num });
+  }
+
+  closeModal() {
+    this.closeEvent.emit();
   }
 }

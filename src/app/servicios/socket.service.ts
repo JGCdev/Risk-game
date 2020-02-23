@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
 import { Observable } from 'rxjs';
-import { Jugador } from '../jugador';
-import { Partida } from '../partida';
 
 @Injectable({
   providedIn: 'root'
@@ -35,9 +33,26 @@ export class SocketService {
   conectar(usuario) {
     this.socket.emit('conectar', usuario);
   }
-  public  onComenzarPartida(): Observable<any> {
+  cambioTurno(partida) {
+    this.socket.emit('cambioTurno', partida);
+  }
+  actualizarPartida(paises, id) {
+    console.log('pedimos actualización después de ataque');
+    this.socket.emit('actualizarPartida', paises, id);
+  }
+  public onComenzarPartida(): Observable<any> {
     return new Observable<any>(observer => {
         this.socket.on('comenzarPartida', (data: any) => observer.next(data));
+    });
+  }
+  public onTurnoChanged(): Observable<any> {
+    return new Observable<any>(observer => {
+        this.socket.on('cambioTurno', (data: any) => observer.next(data));
+    });
+  }
+  public onPaisesChanged(): Observable<any> {
+    return new Observable<any>(observer => {
+        this.socket.on('actualizarPartida', (data: any) => observer.next(data));
     });
   }
   public onSalaCreada(): Observable<any> {
@@ -60,9 +75,9 @@ export class SocketService {
         this.socket.on('errorConexionSala', (data: any) => observer.next(data));
     });
   }
-  public onChangeListaEspera(): Observable<Array<Jugador>> {
-    return new Observable<Array<Jugador>>(observer => {
-        this.socket.on('listaEspera', (data: Array<Jugador>) => observer.next(data));
+  public onChangeListaEspera(): Observable<Array<any>> {
+    return new Observable<Array<any>>(observer => {
+        this.socket.on('listaEspera', (data: Array<any>) => observer.next(data));
     });
   }
 

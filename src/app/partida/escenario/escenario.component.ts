@@ -61,14 +61,26 @@ export class EscenarioComponent implements OnInit {
           console.log('el jugador conectado es: ', element);
         }
       });
+      this.ss.onTurnoChanged().subscribe( (res) => {
+        console.log('escenario ha cambiado, actualizamos: ');
+        this.paises = res.listaPaises;
+        res.personas.forEach(element => {
+          if (element.id === this.jugador.id) {
+            this.jugador = element;
+          }
+        });
+        console.log(res);
+      });
+      this.ss.onPaisesChanged().subscribe( (res) => {
+        console.log('paises han cambiado', res);
+        this.paises = res;
+      });
     } else {
       this.router.navigate(['']);
     }
 
   }
-  openMenu() {
-    this.menuActionsOpen = !this.menuActionsOpen;
-  }
+
   clickDch(id) {
     console.log('Has hecho click en: ' , this.paises[id].nombre + ' id: ' + this.paises[id].id);
     // Si es nuestro turno, evaluamos
@@ -100,7 +112,8 @@ export class EscenarioComponent implements OnInit {
           }
           break;
         case 2:
-          // console.log('fase ordenación');
+
+          // Mejorar que se pueda volver atrás en la fase
           if (this.lastIdSelected === null) {
             this.seleccionarPais(id);
           } else {
@@ -112,6 +125,8 @@ export class EscenarioComponent implements OnInit {
                   paisInicio: this.lastIdSelected,
                   paisFin:  id,
                 };
+                // Fix a máximo fichas realizado seteando esta propiedad (añadir a modelo si es necesario)
+                this.jugador.maxAnadir = this.paises[this.lastIdSelected].fichas - 1;
               } else {
                 console.log('los paises son aliados pero no están conectados');
               }
@@ -124,7 +139,9 @@ export class EscenarioComponent implements OnInit {
 
     }
   }
-
+  close() {
+    this.modal = !this.modal;
+  }
   mover(event) {
     console.log('Evento', event);
     switch (event.action) {
@@ -159,6 +176,8 @@ export class EscenarioComponent implements OnInit {
       this.paises[this.posibleMovimiento.paisInicio].fichas -= num;
       this.modal = false;
     }
+    // Después de mover tropas se pasa automáticamente de fase
+    this.siguienteFase();
   }
 
   ataqueSubito() {
@@ -175,6 +194,8 @@ export class EscenarioComponent implements OnInit {
       this.conquistarPais(this.posibleAtaque[0], this.posibleAtaque[1]);
       console.log('conquistamos ' + this.paises[this.posibleAtaque[0]].nombre + ' desde ' + this.paises[this.posibleAtaque[1]].nombre);
     }
+    // Actualizar partida en cada acción que conlleve cambios pero solo actualizar lo que nos interesa para cada socket
+    // this.ss.actualizarPartida(this.paises, this.partida.id);
   }
 
   conquistarPais(conquistador, conquistado) {
@@ -349,7 +370,20 @@ export class EscenarioComponent implements OnInit {
   }
 
   siguienteFase() {
-    this.jugador.fase++;
+    console.log('cambiar fase', this.jugador.fase);
+
+    if (this.jugador.fase < 2) {
+      this.jugador.fase++;
+    } else {
+      console.log('lanzamos evento cambio de fase');
+      // Deseleccionamos todo antes de cambiar
+      this.paises.forEach(element => {
+        if (element.selected) {
+          element.selected = !element.selected;
+        }
+      });
+      this.ss.cambioTurno(this.partida);
+    }
   }
 
   paisAtacable(id) {
@@ -392,5 +426,9 @@ export class EscenarioComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  openMenu() {
+    this.menuActionsOpen = !this.menuActionsOpen;
   }
 }

@@ -414,6 +414,7 @@ export class EscenarioComponent implements OnInit {
   fasesIndice = ['Inicial', 'Ataque', 'Defensa'];
 
   fichasAnadir = 0;
+
   auxFronteras: Array<number> = [];
   auxFronterasArray: Array<number> = [];
   posibleMovimiento: any;

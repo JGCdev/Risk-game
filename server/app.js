@@ -125,7 +125,6 @@ io.on("connection", socket => {
                         color: partidaAux.colores[0]
                     }
                     partidaAux.colores.splice(0, 1);
-                    console.log('colores: ', partidaAux.colores);
                     partidaAux.personas.push(user);
                 }
 
@@ -149,7 +148,6 @@ io.on("connection", socket => {
                     // Si el inicio es automático
                     if ( partidaAux.config.inicio == 1) {
                         // Generar colores automáticamente según los jugadores y sus colores
-                        console.log('tratamos paises: ');
                         let listaPaisesColoresDisponibles = [];
                         partidaAux.personas.forEach( (persona) => {
                             listaPaisesColoresDisponibles.push(persona.color);
@@ -162,8 +160,11 @@ io.on("connection", socket => {
                         // Enviar paises sin color para rellenar por el usuario
                         partidaAux.listaPaises = paises;
                     }
-                    partidaAux.personas[0].turno = true;
-                    partidaAux.personas[0].fichasDisp = 7;
+
+                    const jugadorComienzoTurnoAleatorio = Math.floor(Math.random() * partidaAux.personas.length) + 0;
+                    partidaAux.personas[jugadorComienzoTurnoAleatorio].turno = true;
+                    partidaAux.personas[jugadorComienzoTurnoAleatorio].fichasDisp = 7;
+                    partidaAux.personas[jugadorComienzoTurnoAleatorio].fase = 0;
 
 
                     io.sockets.in('sala-' + partidaAux.id).emit('comenzarPartida', partidaAux);
@@ -176,6 +177,33 @@ io.on("connection", socket => {
 
         }
 
+    });
+    socket.on('cambioTurno', function(partida){
+        console.log('---------- EVENTO CAMBIO DE TURNO -------------');
+        let posicionPersona;
+        partida.personas.forEach( (elem, i) => {
+            if (elem.turno === true) {
+                elem.turno = false;
+                elem.fase = 0;
+                posicionPersona = i;
+            }
+        });
+        // Modificar la lógica - no cambia bien de turno
+        if (partida.personas[posicionPersona+1] !== undefined) {
+            partida.personas[posicionPersona+1].turno = true;
+            partida.personas[posicionPersona+1].fichasDisp = 7;
+            partida.personas[posicionPersona+1].fase = 0;
+        } else {
+            partida.personas[0].turno = true;
+            partida.personas[0].fichasDisp = 7;
+            partida.personas[0].fase = 0;
+        }
+        io.sockets.in('sala-' + partida.id).emit('cambioTurno', partida);
+    });
+
+    socket.on('actualizarPartida', function(paises, id){
+        console.log('EVENTO ACTUALIZAR PARTIDA ----------');
+        io.sockets.in('sala-' + id).emit('actualizarPartida', paises);
     });
 
     socket.on('disconnect', function(){
@@ -193,8 +221,7 @@ io.on("connection", socket => {
             });
         // Si el desconectado estaba en una sala
         } else {
-            console.log('se marchan de la sala : ', currentRoomId);
-            console.log('el socket abandona y no estaba en lista de espera, eliminar de la sala');
+            console.log('el socket que abandona estaba en la sala : ', currentRoomId);
             // Obtenemos partida con ID
             let partidaAux;
             partidas.forEach( (elem) => {

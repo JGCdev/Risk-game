@@ -119,7 +119,7 @@
     width:150px;
     font-size:0.8rem;
   }
-  // Colores
+  // Colores  - eliminar?
 
   .amarillo{ background-color:#f4b826!important}
   .amarillo-borde{ border-color:#f4b826!important;background-image: url(../src/assets/fichaamarilla.png)!important;}
@@ -134,7 +134,16 @@
   .rojo{background-color: #C64A4A!important}
   .rojo-borde{ border-color:#C64A4A!important;background-image: url(../src/assets/ficharoja.png)!important;}
 
-
+  .action-btn{
+    width: 100%;
+    height: 25px;
+    margin-bottom: 10px;
+    color: white;
+    border: 1px solid black;
+  }
+  .font-mini{
+    font-size:12px;
+  }
 
 
 
@@ -354,10 +363,3 @@ text{
 .st1{fill:none;stroke:#000000;stroke-width:1.2;stroke-dasharray:4.8,1.2;}
 
 
-.action-btn{
-  width: 100%;
-  height: 25px;
-  margin-bottom: 10px;
-  color: white;
-  border: 1px solid black;
-}

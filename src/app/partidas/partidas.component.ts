@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SocketService } from '../servicios/socket.service';
-import { Jugador } from '../jugador';
-import { Partida } from '../partida';
 import { Router } from '@angular/router';
+import { Jugador } from '../models/jugador';
 
 
 @Component({
