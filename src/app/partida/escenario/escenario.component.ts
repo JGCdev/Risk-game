@@ -3,6 +3,7 @@ import { Pais } from 'src/app/models/pais';
 import { SocketService } from 'src/app/servicios/socket.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { JugadorService } from 'src/app/servicios/jugador.service';
+import { TimeInterval } from 'rxjs';
 
 @Component({
   selector: 'app-escenario',
@@ -10,16 +11,6 @@ import { JugadorService } from 'src/app/servicios/jugador.service';
   styleUrls: ['./escenario.component.scss']
 })
 export class EscenarioComponent implements OnInit {
-  // jugador =
-  //   {
-  //     id: 0,
-  //     nombre: 'Jesus',
-  //     turno: true,
-  //     fase: 1,
-  //     color: 'morado',
-  //     colorString: 'morado',
-  //     fichasDisp: 10,
-  //   };
   jugador: any;
   lastIdSelected: number = null;
   modal: boolean;
@@ -46,7 +37,10 @@ export class EscenarioComponent implements OnInit {
   idJugador: any;
   jugadorNuevo: any;
   menuActionsOpen: boolean;
-  constructor(private ss: SocketService, private router: Router, private route: ActivatedRoute, private js: JugadorService) {
+  // Timer
+  timeLeft = 60;
+  interval: any;
+  constructor(private ss: SocketService, private router: Router, private js: JugadorService) {
   }
 
   ngOnInit() {
@@ -59,17 +53,25 @@ export class EscenarioComponent implements OnInit {
         if (element.id === this.ss.getSocketId()) {
           this.jugador = element;
           console.log('el jugador conectado es: ', element);
+          if (this.jugador.turno) {
+            console.log('es tu turno, comenzamos timer con minutos configurados en opciones');
+            this.comenzarTimer();
+          }
         }
       });
       this.ss.onTurnoChanged().subscribe( (res) => {
-        console.log('escenario ha cambiado, actualizamos: ');
+        console.log('escenario ha cambiado, actualizamos: ', res);
         this.paises = res.listaPaises;
+        this.partida.personas = res.personas;
         res.personas.forEach(element => {
           if (element.id === this.jugador.id) {
             this.jugador = element;
           }
         });
-        console.log(res);
+        if (this.jugador.turno) {
+          console.log('es tu turno, comenzamos timer con minutos configurados en opciones');
+          this.comenzarTimer();
+        }
       });
       this.ss.onPaisesChanged().subscribe( (res) => {
         console.log('paises han cambiado', res);
@@ -79,6 +81,23 @@ export class EscenarioComponent implements OnInit {
       this.router.navigate(['']);
     }
 
+  }
+
+  comenzarTimer() {
+    this.timeLeft = this.partida.config.tiempo * 60;
+    this.interval = setInterval(() => {
+      if (this.timeLeft > 0) {
+        this.timeLeft--;
+      } else {
+        clearInterval(this.interval);
+        this.siguienteTurnoForzado();
+      }
+    }, 1000);
+  }
+
+  siguienteTurnoForzado() {
+    console.log('cambiamos turno de forma forzosa');
+    this.ss.cambioTurno(this.partida);
   }
 
   clickDch(id) {
@@ -170,12 +189,14 @@ export class EscenarioComponent implements OnInit {
   }
 
   moverTropas(num) {
+    // Solicitrud de mover tropas
     if (this.paises[this.posibleMovimiento.paisInicio].fichas - 1 >= 1) {
       console.log('añadimos ' + num + 'tropas a', this.paises[this.posibleMovimiento.paisFin]);
       this.paises[this.posibleMovimiento.paisFin].fichas += num;
       this.paises[this.posibleMovimiento.paisInicio].fichas -= num;
       this.modal = false;
     }
+
     // Después de mover tropas se pasa automáticamente de fase
     this.siguienteFase();
   }
@@ -382,6 +403,9 @@ export class EscenarioComponent implements OnInit {
           element.selected = !element.selected;
         }
       });
+      this.partida.listaPaises = this.paises;
+      console.log('partida que mandamos a evaluar: ', this.partida);
+      console.log(this.jugador);
       this.ss.cambioTurno(this.partida);
     }
   }
