@@ -2,8 +2,8 @@ const express = require("express")();
 const http = require("http").Server(express);
 const io = require("socket.io")(http);
 
-// const partidaController = require('./controllers/partida');
-// partidaController.init();
+const partidaController = require('./controllers/partida');
+let paises = partidaController.init();
 
 http.listen(3000, () => {
     console.log("Listening at :3000...");
@@ -63,7 +63,10 @@ io.on("connection", socket => {
                 {
                     nick: sala.user,
                     id: socket.id,
-                    color: colores[0]
+                    color: colores[0],
+                    turno: false,
+                    fichasDisp: 0,
+                    fase: 0
                 }
             ]
         };
@@ -136,6 +139,35 @@ io.on("connection", socket => {
                 console.log('Usuario nuevo a entrado a la sala', partidaAux);
                 io.sockets.in('sala-' + objConectar.idSala).emit('nuevaConexionSala', partidaAux);
                 io.sockets.in('listaEspera').emit('listaEspera', {jugadoresListaEspera, partidas});
+
+
+                // SI es el último jugador, comenzamos
+                if (partidaAux.config.jugadores == partidaAux.personas.length) {
+                    console.log('la partida está llena');
+                    // Mandar la partida tratada en función de la config, capturar desde cliente el id
+                    // Cambiar desde cliente a la ruta con el ID del socket capturado
+                    // Si el inicio es automático
+                    if ( partidaAux.config.inicio == 1) {
+                        // Generar colores automáticamente según los jugadores y sus colores
+                        console.log('tratamos paises: ');
+                        let listaPaisesColoresDisponibles = [];
+                        partidaAux.personas.forEach( (persona) => {
+                            listaPaisesColoresDisponibles.push(persona.color);
+                        });
+                        console.log('Rellenamos paises con: ', listaPaisesColoresDisponibles);
+                        partidaAux.listaPaises = rellenarPaises(listaPaisesColoresDisponibles, paises);
+                        // Enviar señal para terminar de setear las tropas que faltan - Revisar como retomar
+                    } else {
+                        // Enviar paises sin color para rellenar por el usuario
+                        partidaAux.listaPaises = paises;
+                    }
+                    partidaAux.personas[0].turno = true;
+                    partidaAux.personas[0].fichasDisp = 7;
+
+
+                    io.sockets.in('sala-' + partidaAux.id).emit('comenzarPartida', partidaAux);
+                }
+
             } else {
                 // Manejar este error - La partida está llena o ya no existe
                 io.sockets.in('listaEspera').emit('errorConexionSala', 'La partida está llena');
@@ -144,7 +176,6 @@ io.on("connection", socket => {
         }
 
     });
-
 
     socket.on('disconnect', function(){
         console.log('----EVENTO DESCONEXIÓN---------');
@@ -195,6 +226,48 @@ io.on("connection", socket => {
     })
 
 });
+
+function rellenarPaises(lista, paises) {
+    console.log('introducimos colores: ', lista);
+    let auxColores = generateRandomArray(lista.length);
+    const maximoFichasPorPais = 70 / lista.length;
+    let arrayFichasPais = [];
+    lista.forEach(() => {
+        arrayFichasPais.push(0);
+    });
+    paises.forEach( (elem, i) => {
+        // Repartir colores OK!
+        while (elem.color.length < 1) {
+            if (auxColores.length > 0) {
+                elem.color = lista[auxColores[0]];
+                auxColores.splice(0, 1);
+            } else {
+                auxColores = generateRandomArray(lista.length);
+            }
+        }
+
+        // Repartir fichas -- sacar del foreach si es necesario - retomar aquí
+        console.log(lista.indexOf(elem.color));
+        // Añadir más fichas por país
+        arrayFichasPais[lista.indexOf(elem.color)]++;
+        elem.fichas++;
+    });
+    console.log('Situación fichas paises: ', arrayFichasPais);
+
+    return paises;
+}
+
+function generateRandomArray(arraySize) {
+    let randomArray = [];
+    while(randomArray.length < arraySize) {
+        let number = Math.floor(Math.random() * arraySize) + 0;
+        if (!randomArray.includes(number)) {
+            randomArray.push(number);
+        }
+    }
+
+    return randomArray;
+}
 
 // Función que genera un array de colores HEX aleatorios
 function generateColors() {

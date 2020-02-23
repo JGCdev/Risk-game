@@ -14,6 +14,10 @@ const routes: Routes = [
     loadChildren: () => import('./home/home.module').then(m => m.HomeModule)
   },
   {
+    path: 'partida',
+    loadChildren: () => import('./partida/partida.module').then(m => m.PartidaModule)
+  },
+  {
     path: 'comienzo', component: ComienzoComponent
   },
   {
@@ -21,7 +25,10 @@ const routes: Routes = [
   },
   {
     path: 'escenario', component: EscenarioComponent
-  }
+  },
+  {
+    path: '**', redirectTo: '', pathMatch: 'full'
+  },
 ];
 
 @NgModule({

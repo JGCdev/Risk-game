@@ -35,6 +35,11 @@ export class SocketService {
   conectar(usuario) {
     this.socket.emit('conectar', usuario);
   }
+  public  onComenzarPartida(): Observable<any> {
+    return new Observable<any>(observer => {
+        this.socket.on('comenzarPartida', (data: any) => observer.next(data));
+    });
+  }
   public onSalaCreada(): Observable<any> {
     return new Observable<any>(observer => {
         this.socket.on('salaCreada', (data: any) => observer.next(data));
@@ -60,19 +65,8 @@ export class SocketService {
         this.socket.on('listaEspera', (data: Array<Jugador>) => observer.next(data));
     });
   }
-  public onMessage(): Observable<Array<Jugador>> {
-    return new Observable<Array<Jugador>>(observer => {
-        this.socket.on('partida', (data: Array<Jugador>) => observer.next(data));
-    });
-  }
-  public onDisconnect(): Observable<Array<Jugador>> {
-    return new Observable<Array<Jugador>>(observer => {
-        this.socket.on('desc', (data: Array<Jugador>) => observer.next(data));
-    });
-  }
-  public comenzarPartida(): Observable<Partida> {
-    return new Observable<Partida>(observer => {
-        this.socket.on('comenzarPartida', (data: Partida) => observer.next(data));
-    });
+
+  getSocketId() {
+    return this.socket.id;
   }
 }

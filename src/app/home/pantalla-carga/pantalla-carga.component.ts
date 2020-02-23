@@ -29,28 +29,32 @@ export class PantallaCargaComponent implements OnInit {
   }
 
   ngOnInit() {
-    // if (this.js.getSala() !== undefined) {
-    //   console.log('seteamos sala creador:');
-    //   this.sala = this.js.getSala();
-    //   console.log(this.sala);
-    // }
     this.ss.onNuevaConexionSala().subscribe( (data) => {
       this.ss.desconectarListaEspera();
       this.sala = data;
       const faltanJugadores = data.config.jugadores - data.personas.length;
       console.log('faltan jugadores se ejecuta y evalua a ', faltanJugadores);
-      console.log('personas max: ' , data.config.jugadores);
-      console.log('personas actuales: ', data.personas.length);
       this.jugadoresPorLLegar = [];
       if (data.personas.length < data.config.jugadores) {
         for (let i = 0; i < faltanJugadores; i++)  {
           this.jugadoresPorLLegar.push(null);
         }
-      }
+      // } else {
+      //   console.log('partida llena, comenzamos');
+      //   this.ss.comenzarPartida(this.sala.id);
+       
+     }
       console.log('entra alguien nuevo, recargamso objeto sala: ', this.sala);
     });
     this.ss.onErrorConexionSala().subscribe( (data) => {
       console.log('error al conectar', data);
     });
+    this.ss.onComenzarPartida().subscribe( (elem) => {
+      this.js.setSala(elem);
+      console.log('comienza la partida: ', elem);
+      this.router.navigate(['/partida/' + this.sala.id]);
+    });
   }
+
+
 }
