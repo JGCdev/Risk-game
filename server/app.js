@@ -122,7 +122,8 @@ io.on("connection", socket => {
                     const user = {
                         nick: objConectar.nick,
                         id: socket.id,
-                        color: partidaAux.colores[0]
+                        color: partidaAux.colores[0],
+                        turno: false
                     }
                     partidaAux.colores.splice(0, 1);
                     partidaAux.personas.push(user);
@@ -178,27 +179,29 @@ io.on("connection", socket => {
         }
 
     });
-    socket.on('cambioTurno', function(partida){
+    socket.on('cambioTurno', function(partidaInput){
         console.log('---------- EVENTO CAMBIO DE TURNO -------------');
         let posicionPersona;
-        partida.personas.forEach( (elem, i) => {
+        partidaInput.personas.forEach( (elem, i) => {
             if (elem.turno === true) {
                 elem.turno = false;
                 elem.fase = 0;
                 posicionPersona = i;
             }
         });
-        // Modificar la lógica - no cambia bien de turno
-        if (partida.personas[posicionPersona+1] !== undefined) {
-            partida.personas[posicionPersona+1].turno = true;
-            partida.personas[posicionPersona+1].fichasDisp = 7;
-            partida.personas[posicionPersona+1].fase = 0;
+
+        if (partidaInput.personas.length - 1 === posicionPersona) {
+            // Si era el último del array, ponemos true el primero
+            partidaInput.personas[0].turno = true;
+            partidaInput.personas[0].fichasDisp = 7;
+            partidaInput.personas[0].fase = 0;
         } else {
-            partida.personas[0].turno = true;
-            partida.personas[0].fichasDisp = 7;
-            partida.personas[0].fase = 0;
+            partidaInput.personas[posicionPersona+1].turno = true;
+            partidaInput.personas[posicionPersona+1].fichasDisp = 7;
+            partidaInput.personas[posicionPersona+1].fase = 0;
         }
-        io.sockets.in('sala-' + partida.id).emit('cambioTurno', partida);
+        console.log('Nuevo turno asignado: ', partidaInput.personas);
+        io.sockets.in('sala-' + partidaInput.id).emit('cambioTurno',partidaInput);
     });
 
     socket.on('actualizarPartida', function(paises, id){

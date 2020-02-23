@@ -13,12 +13,12 @@
             </div>
         </div>
         <div class="box" *ngIf="jugador.fase === 2">
-            <span>¿Cuántas unidades deseas enviar al destino?</span>
+            <span>Transferir unidades</span>
             <div class="font-mini">Máximo: {{jugador.maxAnadir}} </div>
             <input type="number" name="tropas" min="1" max="{{jugador.maxAnadir}}" [(ngModel)]="fichasMover">
             <div class="buttons-container">
-                <button class="action-btn {{jugador.color}}" (click)="closeModal()">Volver</button>
                 <button class="action-btn {{jugador.color}}" (click)="moverFichas(fichasMover)">Añadir</button>
+                <button class="action-btn {{jugador.color}}" (click)="closeModal()">Volver</button>
             </div>
          
         </div>
