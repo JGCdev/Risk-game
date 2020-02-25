@@ -11,6 +11,7 @@ export class ActionsComponent implements OnInit {
   @Output() closeEvent = new EventEmitter();
   @Input() jugador;
   fichasMover = 1;
+
   constructor() { }
 
   ngOnInit() {

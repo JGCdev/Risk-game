@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Pais } from 'src/app/models/pais';
 import { SocketService } from 'src/app/servicios/socket.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { JugadorService } from 'src/app/servicios/jugador.service';
-import { TimeInterval } from 'rxjs';
 
 @Component({
   selector: 'app-escenario',
@@ -40,132 +39,118 @@ export class EscenarioComponent implements OnInit {
   // Timer
   timeLeft = 60;
   interval: any;
-  constructor(private ss: SocketService, private router: Router, private js: JugadorService) {
-  }
+  constructor(private ss: SocketService, private router: Router, private js: JugadorService) { }
 
   ngOnInit() {
+    this.initEscenario();
+  }
+
+  initEscenario() {
     this.partida = this.js.getSala();
-    console.log(this.partida);
+    this.idJugador = this.ss.getSocketId();
     if (this.partida !== undefined) {
       this.paises = this.partida.listaPaises;
-      this.idJugador = this.ss.getSocketId();
-      this.partida.personas.forEach(element => {
-        if (element.id === this.ss.getSocketId()) {
-          this.jugador = element;
-          console.log('el jugador conectado es: ', element);
-          if (this.jugador.turno) {
-            console.log('es tu turno, comenzamos timer con minutos configurados en opciones');
-            this.comenzarTimer();
-          }
-        }
-      });
-      this.ss.onTurnoChanged().subscribe( (res) => {
-        console.log('escenario ha cambiado, actualizamos: ', res);
-        this.paises = res.listaPaises;
-        this.partida.personas = res.personas;
-        res.personas.forEach(element => {
-          if (element.id === this.jugador.id) {
-            this.jugador = element;
-          }
-        });
+      this.jugador = this.getPlayerById(this.idJugador);
+      if (this.jugador !== undefined) {
+        this.subscribePartidaEvents();
         if (this.jugador.turno) {
-          console.log('es tu turno, comenzamos timer con minutos configurados en opciones');
           this.comenzarTimer();
         }
-      });
-      this.ss.onPaisesChanged().subscribe( (res) => {
-        console.log('paises han cambiado', res);
-        this.paises = res;
-      });
+      }
     } else {
       this.router.navigate(['']);
     }
-
   }
 
-  comenzarTimer() {
-    this.timeLeft = this.partida.config.tiempo * 60;
-    this.interval = setInterval(() => {
-      if (this.timeLeft > 0) {
-        this.timeLeft--;
-      } else {
-        clearInterval(this.interval);
-        this.siguienteTurnoForzado();
+  subscribePartidaEvents() {
+    this.ss.onTurnoChanged().subscribe( (res) => {
+      console.log('escenario ha cambiado, actualizamos: ', res);
+      this.paises = res.listaPaises;
+      this.partida.personas = res.personas;
+      res.personas.forEach(element => {
+        if (element.id === this.jugador.id) {
+          this.jugador = element;
+        }
+      });
+      if (this.jugador.turno) {
+        this.comenzarTimer();
       }
-    }, 1000);
+    });
+    this.ss.onPaisesChanged().subscribe( (res) => {
+      console.log('paises han cambiado', res);
+      this.paises = res;
+    });
   }
-
-  siguienteTurnoForzado() {
-    console.log('cambiamos turno de forma forzosa');
-    this.ss.cambioTurno(this.partida);
-  }
-
-  clickDch(id) {
+  clickPais(id) {
     console.log('Has hecho click en: ' , this.paises[id].nombre + ' id: ' + this.paises[id].id);
     // Si es nuestro turno, evaluamos
     if (this.jugador.turno) {
       // Acciones según fase
       switch (this.jugador.fase) {
         case 0:
-          this.seleccionarPais(id);
-          if (this.paisEnPosesion(id)) {
-            // console.log('es nuestro país');
-            if (this.fichasDisponibles()) {
-              // console.log('podemos añadir fichas, mostramos modal para seleccionar:');
-              this.lastIdSelected = id;
-              this.modal = true;
-            }
-          } else {
-            console.log('este país no es tuyo y estás en fase inicial');
-          }
+          this.evaluarFase0(id);
           break;
         case 1:
           // console.log('fase de ataque');
-          this.seleccionarPais(id);
-          if (this.paisAtacable(id)) {
-            console.log('atacamos');
-            this.modal = true;
-            this.posibleAtaque = [this.lastIdSelected, id];
-          } else {
-            console.log('no puedes atacar este país');
-          }
+          this.evaluarFase1(id);
           break;
         case 2:
-
-          // Mejorar que se pueda volver atrás en la fase
-          if (this.lastIdSelected === null) {
-            this.seleccionarPais(id);
-          } else {
-            if (this.lastIdSelected !== null && this.jugador.color === this.paises[id].color) {
-              if (this.paisesConectados(this.paises[id], this.paises[this.lastIdSelected])) {
-                console.log('los paises son frontera');
-                this.modal = true;
-                this.posibleMovimiento = {
-                  paisInicio: this.lastIdSelected,
-                  paisFin:  id,
-                };
-                // Fix a máximo fichas realizado seteando esta propiedad (añadir a modelo si es necesario)
-                this.jugador.maxAnadir = this.paises[this.lastIdSelected].fichas - 1;
-              } else {
-                console.log('los paises son aliados pero no están conectados');
-              }
-            } else {
-              console.log('no se pueden transferir las tropas a jugadores de otro color');
-            }
-          }
+          this.evaluarFase2(id);
           break;
       }
-
     }
   }
-  close() {
-    this.modal = !this.modal;
+  evaluarFase0(id) {
+    this.seleccionarPais(id);
+    if (this.paisEnPosesion(id)) {
+      // console.log('es nuestro país');
+      if (this.fichasDisponibles()) {
+        // console.log('podemos añadir fichas, mostramos modal para seleccionar:');
+        this.lastIdSelected = id;
+        this.modal = true;
+      }
+    } else {
+      console.log('este país no es tuyo y estás en fase inicial');
+    }
   }
+  evaluarFase1(id) {
+    this.seleccionarPais(id);
+    if (this.paisAtacable(id)) {
+      console.log('atacamos');
+      this.modal = true;
+      this.posibleAtaque = [this.lastIdSelected, id];
+    } else {
+      console.log('no puedes atacar este país');
+    }
+  }
+  evaluarFase2(id) {
+    // Mejorar que se pueda volver atrás en la fase
+    if (this.lastIdSelected === null) {
+      this.seleccionarPais(id);
+    } else {
+      if (this.lastIdSelected !== null && this.jugador.color === this.paises[id].color) {
+        if (this.paisesConectados(this.paises[id], this.paises[this.lastIdSelected])) {
+          console.log('los paises son frontera');
+          this.modal = true;
+          this.posibleMovimiento = {
+            paisInicio: this.lastIdSelected,
+            paisFin:  id,
+          };
+          // Fix a máximo fichas realizado seteando esta propiedad (añadir a modelo si es necesario)
+          this.jugador.maxAnadir = this.paises[this.lastIdSelected].fichas - 1;
+        } else {
+          console.log('los paises son aliados pero no están conectados');
+        }
+      } else {
+        console.log('no se pueden transferir las tropas a jugadores de otro color');
+      }
+    }
+  }
+
   mover(event) {
     console.log('Evento', event);
     switch (event.action) {
       case 0:
-        // console.log('fase de carga');
         this.paises[this.lastIdSelected].fichas += event.fichas;
         this.jugador.fichasDisp -= event.fichas;
         this.reset();
@@ -189,14 +174,13 @@ export class EscenarioComponent implements OnInit {
   }
 
   moverTropas(num) {
-    // Solicitrud de mover tropas
+    // Solicitud de mover tropas
     if (this.paises[this.posibleMovimiento.paisInicio].fichas - 1 >= 1) {
       console.log('añadimos ' + num + 'tropas a', this.paises[this.posibleMovimiento.paisFin]);
       this.paises[this.posibleMovimiento.paisFin].fichas += num;
       this.paises[this.posibleMovimiento.paisInicio].fichas -= num;
       this.modal = false;
     }
-
     // Después de mover tropas se pasa automáticamente de fase
     this.siguienteFase();
   }
@@ -232,23 +216,22 @@ export class EscenarioComponent implements OnInit {
   }
 
   ataquePorTurnos() {
-    console.log('logica para ataque por turnos');
+    console.log('logica para ataque por turnos, por realizar');
   }
 
   addTropas(num) {
-    // Si las fichas a añadir no sobrepasan las que tenemos para mover - 1
+    // Si las fichas a añadir no sobrepasan las que tenemos para mover - 1, añadimos
     if (this.paises[this.conquistarModal.conquistador].fichas - 1 >= num) {
-      console.log('añadimos ' + num + 'tropas a' + this.conquistarModal.conquistado);
       this.paises[this.conquistarModal.conquistado].fichas += num;
       this.paises[this.conquistarModal.conquistador].fichas -= num;
       this.conquistarModal.active = false;
     } else {
       this.fichasAnadir = 0;
     }
-
   }
 
   atacar() {
+    // Refactorizar al máximo, es un loop
     const atacante = this.paises[this.posibleAtaque[0]].fichas;
     const defensor = this.paises[this.posibleAtaque[1]].fichas;
     console.log('ataco con ' + atacante + ' a ' + defensor);
@@ -333,7 +316,7 @@ export class EscenarioComponent implements OnInit {
   paisesConectados(paisDestino, paisPartida) {
 
     // Posible refactorización del método pero funcionando 100%, testear en diferentes escenarios
-    // Filosofía: Comprobar si son vecinos, si no comprobar los vecinos del destino y tener array aux de descartes
+    // Planteamiento: Comprobar si son vecinos, si no comprobar los vecinos del destino y tener array aux de descartes
     let estaConectado = false;
     const idOrigen = paisPartida.id;
     const idDestino = paisDestino.id;
@@ -404,8 +387,6 @@ export class EscenarioComponent implements OnInit {
         }
       });
       this.partida.listaPaises = this.paises;
-      console.log('partida que mandamos a evaluar: ', this.partida);
-      console.log(this.jugador);
       this.ss.cambioTurno(this.partida);
     }
   }
@@ -454,5 +435,36 @@ export class EscenarioComponent implements OnInit {
 
   openMenu() {
     this.menuActionsOpen = !this.menuActionsOpen;
+  }
+
+  close() {
+    this.modal = !this.modal;
+  }
+
+  comenzarTimer() {
+    this.timeLeft = this.partida.config.tiempo * 60;
+    this.interval = setInterval(() => {
+      if (this.timeLeft > 0) {
+        this.timeLeft--;
+      } else {
+        clearInterval(this.interval);
+        this.siguienteTurnoForzado();
+      }
+    }, 1000);
+  }
+
+  siguienteTurnoForzado() {
+    this.ss.cambioTurno(this.partida);
+  }
+
+  getPlayerById(id) {
+    let player;
+    this.partida.personas.forEach(element => {
+      if (element.id === id) {
+        player = element;
+        console.log('el jugador es: ', element);
+      }
+    });
+    return player;
   }
 }
