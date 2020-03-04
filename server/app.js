@@ -258,28 +258,35 @@ io.on("connection", socket => {
 
 });
 
-// Refactor
+// Refactor - Llevarnos todas las funciones independientes a archivo functions
 function rellenarPaises(lista, paisesCopy) {
-    console.log('introducimos colores: ', lista);
-    let auxColores = generateRandomArray(lista.length);
-    // Asignar colores - hacer más aleatorio
-    paisesCopy.forEach( (elem, i) => {
-        // Reiniciamos array de paises
-        elem.color = '';
-        elem.fichas = 0;
-        while (elem.color.length < 1) {
-            if (auxColores.length > 0) {
-                elem.color = lista[auxColores[0]];
-                auxColores.splice(0, 1);
-            } else {
-                auxColores = generateRandomArray(lista.length);
-            }
+
+    // PARTE COLOREAR + FICHAS BASE
+    let fichasPorPersona = Math.round(42 / lista.length - 0.1);
+    let arrayToShuffle = [];
+    for (let i = 0; i < lista.length; i++) {
+        for (let j = 0; j < fichasPorPersona; j++) {
+            arrayToShuffle.push(i);
         }
-        elem.fichas++;
+    }
+
+    if (arrayToShuffle.length < 42) {
+        let cont = 0;
+        while (arrayToShuffle.length < 42) {
+            arrayToShuffle.push(cont);
+            cont++;
+        }
+    }
+
+    const shuffledArray = shuffle(arrayToShuffle);
+    paisesCopy.forEach( (elem, i) => {
+        // Rellenamos array final con elementos generados
+        elem.color = lista[shuffledArray[i]];
+        elem.fichas = 1;
     });
 
 
-    // Parte añadir fichas sobrantes
+    // PARTE AÑADIR FICHAS SOBRANTES
     const fichasSobrantesPorPais = Math.round((72 / lista.length) - (42 / lista.length));
     let auxFichasPais = [];
     lista.forEach( () => {
@@ -303,23 +310,10 @@ function rellenarPaises(lista, paisesCopy) {
                 elem -= numRandom;
                 paisesCopy[paisRandom].fichas += numRandom;
             }
-            
         }
     });
     console.log('devolvemos paises: ', auxFichasPais);
     return paisesCopy;
-}
-
-function generateRandomArray(arraySize) {
-    let randomArray = [];
-    while(randomArray.length < arraySize) {
-        let number = Math.floor(Math.random() * arraySize) + 0;
-        if (!randomArray.includes(number)) {
-            randomArray.push(number);
-        }
-    }
-
-    return randomArray;
 }
 
 // Función que genera un array de colores HEX aleatorios
@@ -362,4 +356,22 @@ function randomNumberToColor(num) {
         break;
     }
     return colorString;
+}
+
+function shuffle(array) {
+    let currentIndex = array.length, temporaryValue, randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+  
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+  
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+    return array;
 }
