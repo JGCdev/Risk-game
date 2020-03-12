@@ -10,6 +10,7 @@ import { JugadorService } from 'src/app/servicios/jugador.service';
   styleUrls: ['./escenario.component.scss']
 })
 export class EscenarioComponent implements OnInit {
+  // Este controlador debe ir en backend, cambiar lógica general de aplicación
   jugador: any;
   lastIdSelected: number = null;
   modal: boolean;
