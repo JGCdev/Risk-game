@@ -2,6 +2,18 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.1.2.
 
+## Screenshots
+![Name selection](https://github.com/JGCdev/Risk-game/blob/master/src/assets/readme/111.png)
+---
+![Socket Rooms](https://github.com/JGCdev/Risk-game/blob/master/src/assets/readme/222.png)
+---
+![Waiting screen](https://github.com/JGCdev/Risk-game/blob/master/src/assets/readme/333.png)
+---
+![Room joining](https://github.com/JGCdev/Risk-game/blob/master/src/assets/readme/444.png)
+---
+![Risk Map With 2 users](https://github.com/JGCdev/Risk-game/blob/master/src/assets/readme/555.png)
+
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
